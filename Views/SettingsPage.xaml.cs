@@ -12,8 +12,20 @@ namespace ScrcpyGui.Views
 
         public SettingsPage()
         {
-            ViewModel = App.Services.GetService<SettingsViewModel>() ?? throw new NullReferenceException("SettingsViewModel not registered in DI container");
-            InitializeComponent();
+            try
+            {
+                ViewModel = App.Services.GetService<SettingsViewModel>() ?? throw new NullReferenceException("SettingsViewModel not registered in DI container");
+                InitializeComponent();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    System.IO.File.WriteAllText(@"C:\Users\26503\Documents\antigravity\crash.log", ex.ToString());
+                }
+                catch { }
+                throw;
+            }
         }
 
         public string GetMaxSizeHeader(double value)

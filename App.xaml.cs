@@ -23,6 +23,15 @@ namespace ScrcpyGui
         {
             InitializeComponent();
 
+            UnhandledException += (s, e) =>
+            {
+                try
+                {
+                    System.IO.File.WriteAllText(@"C:\Users\26503\Documents\antigravity\crash.log", e.Exception?.ToString() ?? e.Message);
+                }
+                catch { }
+            };
+
             var services = new ServiceCollection();
 
             // Register Services
