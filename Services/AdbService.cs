@@ -129,11 +129,11 @@ namespace ScrcpyGui.Services
             }
             else if (status.Equals("unauthorized", StringComparison.OrdinalIgnoreCase))
             {
-                device.Model = "Unauthorized Device";
+                device.Model = "未授权设备";
             }
             else
             {
-                device.Model = "Offline Device";
+                device.Model = "离线设备";
             }
 
             return device;

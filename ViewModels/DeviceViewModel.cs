@@ -100,7 +100,7 @@ namespace ScrcpyGui.ViewModels
             }
             catch (Exception ex)
             {
-                AppendLog($"Error discovering devices: {ex.Message}");
+                AppendLog($"设备检测错误: {ex.Message}");
             }
             finally
             {
@@ -113,7 +113,7 @@ namespace ScrcpyGui.ViewModels
             if (SelectedDevice == null) return;
 
             AppendLog("----------------------------------------");
-            AppendLog($"Starting screen mirror for: {SelectedDevice.Model}");
+            AppendLog($"正在启动设备投屏: {SelectedDevice.Model}");
             
             await _scrcpyService.StartMirroringAsync(
                 SelectedDevice,
@@ -130,7 +130,7 @@ namespace ScrcpyGui.ViewModels
                 {
                     App.MainWindowInstance?.DispatcherQueue.TryEnqueue(() =>
                     {
-                        AppendLog($"scrcpy exited with code: {exitCode}");
+                        AppendLog($"scrcpy 进程已退出，退出代码: {exitCode}");
                     });
                 }
             );
@@ -140,11 +140,11 @@ namespace ScrcpyGui.ViewModels
         {
             if (string.IsNullOrEmpty(WirelessIpAddress))
             {
-                WirelessStatusMessage = "Please enter IP Address";
+                WirelessStatusMessage = "请输入 IP 地址";
                 return;
             }
 
-            WirelessStatusMessage = "Connecting...";
+            WirelessStatusMessage = "正在连接...";
             var result = await _adbService.ConnectWirelessAsync(WirelessIpAddress, (int)WirelessPort);
             WirelessStatusMessage = result;
             
@@ -155,11 +155,11 @@ namespace ScrcpyGui.ViewModels
         {
             if (string.IsNullOrEmpty(WirelessIpAddress) || string.IsNullOrEmpty(PairingCode))
             {
-                WirelessStatusMessage = "Please enter IP Address and Pairing Code";
+                WirelessStatusMessage = "请输入 IP 地址和配对码";
                 return;
             }
 
-            WirelessStatusMessage = "Pairing...";
+            WirelessStatusMessage = "正在配对...";
             var result = await _adbService.PairWirelessAsync(WirelessIpAddress, (int)WirelessPort, PairingCode);
             WirelessStatusMessage = result;
         }

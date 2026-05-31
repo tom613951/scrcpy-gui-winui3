@@ -30,12 +30,12 @@ namespace ScrcpyGui.Views
 
         public string GetMaxSizeHeader(double value)
         {
-            return value == 0 ? "Resolution: Native" : $"Resolution: {value}px";
+            return value == 0 ? "分辨率限制：无限制（原生）" : $"分辨率限制：{value} 像素";
         }
 
         public string GetMaxFpsHeader(double value)
         {
-            return value == 0 ? "FPS Limit: Unlimited" : $"FPS Limit: {value} FPS";
+            return value == 0 ? "帧率限制：无限制" : $"帧率限制：{value} 帧";
         }
 
         public Visibility BoolToVisibility(bool value) => value ? Visibility.Visible : Visibility.Collapsed;

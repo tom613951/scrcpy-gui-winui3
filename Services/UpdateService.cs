@@ -59,7 +59,7 @@ namespace ScrcpyGui.Services
             var targetDir = _pathService.DefaultScrcpyDirectory;
             var tempZipPath = Path.Combine(Path.GetTempPath(), "scrcpy-win64-latest.zip");
 
-            onStatusChanged?.Invoke("Downloading scrcpy package...");
+            onStatusChanged?.Invoke("正在下载 scrcpy 资源包...");
             
             // 1. Download file with progress reporting
             using (var response = await _httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead))
@@ -87,7 +87,7 @@ namespace ScrcpyGui.Services
                 }
             }
 
-            onStatusChanged?.Invoke("Extracting files...");
+            onStatusChanged?.Invoke("正在解压运行文件...");
             onProgress?.Invoke(-1); // Indeterminate progress for extraction
 
             // 2. Extract ZIP
@@ -140,7 +140,7 @@ namespace ScrcpyGui.Services
                 File.Delete(tempZipPath);
             }
 
-            onStatusChanged?.Invoke("Done");
+            onStatusChanged?.Invoke("安装完成");
             onProgress?.Invoke(100);
         }
     }

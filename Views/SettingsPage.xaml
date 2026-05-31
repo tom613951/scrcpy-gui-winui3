@@ -15,8 +15,8 @@
 
         <!-- Page Header -->
         <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,16">
-            <TextBlock Text="Settings" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="SemiBold" />
-            <TextBlock Text="Configure scrcpy mirroring properties and application paths" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            <TextBlock Text="系统设置" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="SemiBold" />
+            <TextBlock Text="配置 scrcpy 投屏属性与应用程序运行路径" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
         </StackPanel>
 
         <!-- Scrollable Settings Groups -->
@@ -25,7 +25,7 @@
                 
                 <!-- Group 1: Performance & Quality -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Performance &amp; Resolution" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
+                    <TextBlock Text="性能与分辨率" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
                     
                     <!-- Card: Max Size -->
                     <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
@@ -35,8 +35,8 @@
                                 <ColumnDefinition Width="200" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Maximum Resolution Limit" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                <TextBlock Text="Limit both width and height of the video (0 = Native device resolution)" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="最大分辨率限制" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="限制投屏视频画面的最大宽度和高度（0 = 使用安卓设备原生分辨率）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
                             <Slider Grid.Column="1" Minimum="0" Maximum="1920" StepFrequency="120" Value="{x:Bind ViewModel.MaxSize, Mode=TwoWay}" Header="{x:Bind GetMaxSizeHeader(ViewModel.MaxSize), Mode=OneWay}" />
                         </Grid>
@@ -50,8 +50,8 @@
                                 <ColumnDefinition Width="200" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Video Bitrate" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                <TextBlock Text="Higher bitrate offers better quality but demands more USB/Wi-Fi bandwidth" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="视频码率 (Bitrate)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="较高的码率可以提供更清晰的画面，但对 USB 传输或 Wi-Fi 带宽要求更高" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
                             <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectedIndex="{x:Bind ViewModel.BitrateIndex, Mode=TwoWay}">
                                 <ComboBoxItem Content="2M" />
@@ -71,8 +71,8 @@
                                 <ColumnDefinition Width="200" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Frame Rate Limit" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                <TextBlock Text="Limit the maximum rendering FPS (0 = Unlimited)" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="帧率限制 (FPS)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="限制投屏画面的最高帧率（0 = 无限制）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
                             <Slider Grid.Column="1" Minimum="0" Maximum="120" StepFrequency="15" Value="{x:Bind ViewModel.MaxFps, Mode=TwoWay}" Header="{x:Bind GetMaxFpsHeader(ViewModel.MaxFps), Mode=OneWay}" />
                         </Grid>
@@ -81,7 +81,7 @@
 
                 <!-- Group 2: Android Stay Awake & Audio -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Device Audio &amp; Power Control" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
+                    <TextBlock Text="设备音频与电源管理" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
 
                     <!-- Card: Disable Audio -->
                     <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
@@ -91,8 +91,8 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Disable Audio Mirroring" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                <TextBlock Text="Turn off audio streaming from the Android device to the PC" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="禁用音频传输" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="关闭从安卓设备到电脑的音频同步传输（投屏时保持电脑静音）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.DisableAudio, Mode=TwoWay}" OnContent="" OffContent="" />
                         </Grid>
@@ -106,8 +106,8 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Turn Off Device Screen" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                <TextBlock Text="Turn off the physical Android screen during mirroring to save battery" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="自动关闭设备屏幕" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="投屏启动后，自动关闭手机/平板的物理屏幕，以节省电量并防止烧屏" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.TurnScreenOff, Mode=TwoWay}" OnContent="" OffContent="" />
                         </Grid>
@@ -121,8 +121,8 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Prevent Device Sleep" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                <TextBlock Text="Force the device to stay awake while connected" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="防止设备自动休眠" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="投屏时强制保持安卓设备为唤醒状态" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.StayAwake, Mode=TwoWay}" OnContent="" OffContent="" />
                         </Grid>
@@ -131,7 +131,7 @@
 
                 <!-- Group 3: Keyboard/Mouse OTG & Display -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Window &amp; Input Options" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
+                    <TextBlock Text="窗口与输入控制" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
 
                     <!-- Card: Keep On Top -->
                     <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
@@ -141,8 +141,8 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Always On Top" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                <TextBlock Text="Keep the mirrored screen window on top of other PC windows" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="投屏窗口置顶" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="保持投屏画面窗口始终置于电脑其他窗口最前端" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.KeepOnTop, Mode=TwoWay}" OnContent="" OffContent="" />
                         </Grid>
@@ -156,8 +156,8 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Start in Fullscreen" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                <TextBlock Text="Launch the mirroring window in full-screen mode" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="以全屏模式启动" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="投屏窗口启动时直接进入全屏状态" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.Fullscreen, Mode=TwoWay}" OnContent="" OffContent="" />
                         </Grid>
@@ -171,8 +171,8 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="4">
-                                <TextBlock Text="OTG Mode (HID Keyboard/Mouse only)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                <TextBlock Text="Simulate USB Keyboard/Mouse input directly without mirroring the video screen" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="OTG 键鼠模式 (仅 HID)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="仅将电脑键鼠输入模拟为物理 USB 键鼠直连设备，不显示投屏画面（仅限 USB 连接）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.OtgMode, Mode=TwoWay}" OnContent="" OffContent="" />
                         </Grid>
@@ -181,7 +181,7 @@
 
                 <!-- Group 4: Paths & Custom parameters -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="System Paths &amp; CLI Customization" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
+                    <TextBlock Text="系统路径与命令行自定义" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
 
                     <!-- Card: Custom scrcpy Path Toggle -->
                     <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
@@ -191,8 +191,8 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="4">
-                                <TextBlock Text="Use Custom scrcpy Path" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                <TextBlock Text="Specify a local custom directory for scrcpy/ADB binaries instead of using auto-downloaded ones" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="使用自定义 scrcpy 路径" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="指定本地已有的 scrcpy 文件夹，而不使用本软件自动下载托管的版本" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
                             <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.UseCustomScrcpyPath, Mode=TwoWay}" OnContent="" OffContent="" />
                         </Grid>
@@ -209,7 +209,7 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBox Header="Custom scrcpy Folder Path" Text="{x:Bind ViewModel.CustomScrcpyPath, Mode=TwoWay}" PlaceholderText="C:\path\to\scrcpy-win64" HorizontalAlignment="Stretch" />
+                            <TextBox Header="自定义 scrcpy 目录路径" Text="{x:Bind ViewModel.CustomScrcpyPath, Mode=TwoWay}" PlaceholderText="例如 C:\tools\scrcpy-win64" HorizontalAlignment="Stretch" />
                             <Button Grid.Column="1" VerticalAlignment="Bottom" Click="BrowseButton_Click">
                                 <SymbolIcon Symbol="Folder" />
                             </Button>
@@ -218,7 +218,7 @@
 
                     <!-- Card: Custom CLI Args -->
                     <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
-                        <TextBox Header="Additional Command-Line Arguments" Text="{x:Bind ViewModel.CustomArguments, Mode=TwoWay}" PlaceholderText="e.g. --turn-screen-off --no-audio" HorizontalAlignment="Stretch" />
+                        <TextBox Header="附加命令行参数" Text="{x:Bind ViewModel.CustomArguments, Mode=TwoWay}" PlaceholderText="例如 --turn-screen-off --no-audio" HorizontalAlignment="Stretch" />
                     </Border>
                 </StackPanel>
                 

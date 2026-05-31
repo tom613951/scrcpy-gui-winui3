@@ -15,7 +15,7 @@ namespace ScrcpyGui.ViewModels
         private double _progressValue = 0;
 
         [ObservableProperty]
-        private string _statusMessage = "Ready";
+        private string _statusMessage = "准备就绪";
 
         [ObservableProperty]
         private bool _isDownloading = false;
@@ -24,7 +24,7 @@ namespace ScrcpyGui.ViewModels
         private bool _isIndeterminate = false;
 
         [ObservableProperty]
-        private string _latestVersion = "Unknown";
+        private string _latestVersion = "未知";
 
         public IAsyncRelayCommand StartDownloadCommand { get; }
         public IAsyncRelayCommand CheckVersionCommand { get; }
@@ -43,10 +43,10 @@ namespace ScrcpyGui.ViewModels
 
         public async Task CheckVersionAsync()
         {
-            StatusMessage = "Checking for updates...";
+            StatusMessage = "正在检查更新...";
             var info = await _updateService.GetLatestReleaseInfoAsync();
             LatestVersion = info.Version;
-            StatusMessage = _pathService.BinariesExist ? "scrcpy binaries found." : "scrcpy binaries not found. Please click Download.";
+            StatusMessage = _pathService.BinariesExist ? "已检测到 scrcpy 运行组件。" : "未找到 scrcpy 运行组件，请点击上方“下载并安装”进行配置。";
         }
 
         private async Task StartDownloadAsync()
@@ -56,11 +56,11 @@ namespace ScrcpyGui.ViewModels
 
             try
             {
-                StatusMessage = "Fetching download URL...";
+                StatusMessage = "正在获取下载地址...";
                 var info = await _updateService.GetLatestReleaseInfoAsync();
                 if (string.IsNullOrEmpty(info.DownloadUrl))
                 {
-                    StatusMessage = "Error: Could not find Windows 64-bit download asset.";
+                    StatusMessage = "错误：未能找到 Windows 64位版本的下载资源。";
                     return;
                 }
 
@@ -86,7 +86,7 @@ namespace ScrcpyGui.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Download failed: {ex.Message}";
+                StatusMessage = $"下载失败: {ex.Message}";
             }
             finally
             {

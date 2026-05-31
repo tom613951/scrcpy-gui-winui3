@@ -16,8 +16,8 @@
 
         <!-- Page Header -->
         <StackPanel Grid.Row="0" Spacing="4">
-            <TextBlock Text="Package Manager" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="SemiBold" />
-            <TextBlock Text="Manage scrcpy core binaries and updates" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            <TextBlock Text="安装/管理器" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="SemiBold" />
+            <TextBlock Text="管理 scrcpy 核心运行包与版本更新" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
         </StackPanel>
 
         <!-- Downloader Card -->
@@ -43,9 +43,9 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Genymobile scrcpy Binary Package" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="Medium" />
+                        <TextBlock Text="Genymobile scrcpy 官方运行包" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="Medium" />
                         <StackPanel Orientation="Horizontal" Spacing="16">
-                            <TextBlock Text="Latest Version on GitHub:" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="GitHub 最新版本:" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             <TextBlock Text="{x:Bind ViewModel.LatestVersion, Mode=OneWay}" Style="{ThemeResource BodyTextBlockStyle}" FontWeight="SemiBold" />
                         </StackPanel>
                     </StackPanel>
@@ -54,14 +54,14 @@
                         <Button Command="{x:Bind ViewModel.CheckVersionCommand}" ToolTipService.ToolTip="Check for Updates">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <SymbolIcon Symbol="Refresh" />
-                                <TextBlock Text="Check" />
+                                <TextBlock Text="检查更新" />
                             </StackPanel>
                         </Button>
                         <Button Style="{ThemeResource AccentButtonStyle}" 
                                 Command="{x:Bind ViewModel.StartDownloadCommand}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <SymbolIcon Symbol="Download" />
-                                <TextBlock Text="Download &amp; Install" />
+                                <TextBlock Text="下载并安装" />
                             </StackPanel>
                         </Button>
                     </StackPanel>

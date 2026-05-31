@@ -23,8 +23,8 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Spacing="4">
-                <TextBlock Text="Devices" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="SemiBold" />
-                <TextBlock Text="Select a connected Android device to start screen mirroring" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                <TextBlock Text="设备列表" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="SemiBold" />
+                <TextBlock Text="选择已连接的安卓设备以启动屏幕投屏" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
@@ -33,14 +33,14 @@
                         Visibility="{x:Bind BoolToVisibility(ViewModel.IsBinariesMissing), Mode=OneWay}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <SymbolIcon Symbol="Important" Foreground="#9F6A00" />
-                        <TextBlock Text="scrcpy binaries are missing! Please go to Package Manager." Foreground="#9F6A00" VerticalAlignment="Center" FontWeight="Medium" />
+                        <TextBlock Text="缺少 scrcpy 运行组件！请前往“安装/管理器”下载安装。" Foreground="#9F6A00" VerticalAlignment="Center" FontWeight="Medium" />
                     </StackPanel>
                 </Border>
                 
                 <Button Command="{x:Bind ViewModel.RefreshDevicesCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <SymbolIcon Symbol="Refresh" />
-                        <TextBlock Text="Refresh Devices" />
+                        <TextBlock Text="刷新设备列表" />
                     </StackPanel>
                 </Button>
             </StackPanel>
@@ -60,8 +60,8 @@
                         Visibility="{x:Bind IsListEmpty(ViewModel.Devices.Count), Mode=OneWay}">
                     <StackPanel Spacing="16" HorizontalAlignment="Center">
                         <SymbolIcon Symbol="CellPhone" Height="48" Width="48" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                        <TextBlock Text="No connected devices found" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" FontWeight="Medium" />
-                        <TextBlock Text="Connect your Android device via USB (with Developer options &amp; USB Debugging enabled) or use the Wireless connect panel on the right." Style="{ThemeResource BodyTextBlockStyle}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" MaxWidth="400" />
+                        <TextBlock Text="未找到已连接的设备" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" FontWeight="Medium" />
+                        <TextBlock Text="请通过 USB 数据线连接您的安卓设备（需开启“开发者选项”与“USB 调试”），或使用右侧的无线连接面板进行连接。" Style="{ThemeResource BodyTextBlockStyle}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" MaxWidth="400" />
                     </StackPanel>
                 </Border>
 
@@ -103,7 +103,7 @@
                                     <!-- Connection status badge and quick mirror button -->
                                     <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
                                         <Border CornerRadius="4" Padding="8,4" Background="{x:Bind StatusBrush}">
-                                            <TextBlock Text="{x:Bind Status}" Foreground="White" Style="{ThemeResource CaptionTextBlockStyle}" FontWeight="Bold" />
+                                            <TextBlock Text="{x:Bind StatusDisplayName}" Foreground="White" Style="{ThemeResource CaptionTextBlockStyle}" FontWeight="Bold" />
                                         </Border>
                                     </StackPanel>
                                 </Grid>
@@ -124,16 +124,16 @@
                 <!-- Connect Card -->
                 <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Wi-Fi ADB Connection" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" />
-                        <TextBlock Text="Connect to Android device wirelessly (must be on the same local network)" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Text="无线 ADB 连接" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" />
+                        <TextBlock Text="无线连接安卓设备（设备与电脑必须处于同一局域网中）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                         
-                        <TextBox Header="IP Address" Text="{x:Bind ViewModel.WirelessIpAddress, Mode=TwoWay}" PlaceholderText="192.168.1.100" />
-                        <NumberBox Header="ADB Port" Value="{x:Bind ViewModel.WirelessPort, Mode=TwoWay}" PlaceholderText="5555" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" />
+                        <TextBox Header="IP 地址" Text="{x:Bind ViewModel.WirelessIpAddress, Mode=TwoWay}" PlaceholderText="例如 192.168.1.100" />
+                        <NumberBox Header="ADB 端口" Value="{x:Bind ViewModel.WirelessPort, Mode=TwoWay}" PlaceholderText="默认 5555" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" />
                         
                         <Button Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.WirelessConnectCommand}" HorizontalAlignment="Stretch">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <SymbolIcon Symbol="Remote" />
-                                <TextBlock Text="Connect" />
+                                <TextBlock Text="立即连接" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -142,15 +142,15 @@
                 <!-- Pairing Card -->
                 <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Android 11+ Pairing" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" />
-                        <TextBlock Text="Pair device using Pairing Port and Pairing Code from developer options" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Text="Android 11+ 无线配对" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" />
+                        <TextBlock Text="使用开发者选项中的配对端口和配对码与设备进行配对" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                         
-                        <TextBox Header="Pairing Code" Text="{x:Bind ViewModel.PairingCode, Mode=TwoWay}" PlaceholderText="123456" />
+                        <TextBox Header="配对码" Text="{x:Bind ViewModel.PairingCode, Mode=TwoWay}" PlaceholderText="请输入配对码" />
                         
                         <Button Command="{x:Bind ViewModel.WirelessPairCommand}" HorizontalAlignment="Stretch">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <SymbolIcon Symbol="Permissions" />
-                                <TextBlock Text="Pair Device" />
+                                <TextBlock Text="配对设备" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -170,12 +170,12 @@
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0" Margin="0,0,0,8">
-                    <TextBlock Text="scrcpy Output Console" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <TextBlock Text="scrcpy 进程控制台日志" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
                         <Button Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.StartMirroringCommand}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <SymbolIcon Symbol="Play" />
-                                <TextBlock Text="Start Mirroring" />
+                                <TextBlock Text="启动投屏" />
                             </StackPanel>
                         </Button>
                         <Button Command="{x:Bind ViewModel.ClearLogCommand}">
