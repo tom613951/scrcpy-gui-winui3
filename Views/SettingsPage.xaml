@@ -25,7 +25,7 @@
                 
                 <!-- Group 1: Performance & Quality -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Performance &amp; Resolution" Style="{ThemeResource ListSectionHeaderTextBlockStyle}" FontWeight="SemiBold" />
+                    <TextBlock Text="Performance &amp; Resolution" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
                     
                     <!-- Card: Max Size -->
                     <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
@@ -81,7 +81,7 @@
 
                 <!-- Group 2: Android Stay Awake & Audio -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Device Audio &amp; Power Control" Style="{ThemeResource ListSectionHeaderTextBlockStyle}" FontWeight="SemiBold" />
+                    <TextBlock Text="Device Audio &amp; Power Control" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
 
                     <!-- Card: Disable Audio -->
                     <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
@@ -131,7 +131,7 @@
 
                 <!-- Group 3: Keyboard/Mouse OTG & Display -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Window &amp; Input Options" Style="{ThemeResource ListSectionHeaderTextBlockStyle}" FontWeight="SemiBold" />
+                    <TextBlock Text="Window &amp; Input Options" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
 
                     <!-- Card: Keep On Top -->
                     <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
@@ -181,7 +181,7 @@
 
                 <!-- Group 4: Paths & Custom parameters -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="System Paths &amp; CLI Customization" Style="{ThemeResource ListSectionHeaderTextBlockStyle}" FontWeight="SemiBold" />
+                    <TextBlock Text="System Paths &amp; CLI Customization" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
 
                     <!-- Card: Custom scrcpy Path Toggle -->
                     <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
