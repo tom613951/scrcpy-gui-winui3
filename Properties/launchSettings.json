@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ScrcpyGui (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "ScrcpyGui (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

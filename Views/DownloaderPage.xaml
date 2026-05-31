@@ -1,0 +1,94 @@
+<Page
+    x:Class="ScrcpyGui.Views.DownloaderPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="Transparent">
+
+    <Grid RowSpacing="24" Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Page Header -->
+        <StackPanel Grid.Row="0" Spacing="4">
+            <TextBlock Text="Package Manager" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="SemiBold" />
+            <TextBlock Text="Manage scrcpy core binaries and updates" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        </StackPanel>
+
+        <!-- Downloader Card -->
+        <Border Grid.Row="1" 
+                CornerRadius="8" 
+                BorderThickness="1" 
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                Padding="24">
+            
+            <Grid RowSpacing="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Status & Info -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Genymobile scrcpy Binary Package" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="Medium" />
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <TextBlock Text="Latest Version on GitHub:" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.LatestVersion, Mode=OneWay}" Style="{ThemeResource BodyTextBlockStyle}" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                        <Button Command="{x:Bind ViewModel.CheckVersionCommand}" ToolTipService.ToolTip="Check for Updates">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <SymbolIcon Symbol="Refresh" />
+                                <TextBlock Text="Check" />
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{ThemeResource AccentButtonStyle}" 
+                                Command="{x:Bind ViewModel.StartDownloadCommand}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <SymbolIcon Symbol="Download" />
+                                <TextBlock Text="Download &amp; Install" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Progress Bar -->
+                <StackPanel Grid.Row="1" Spacing="8" Visibility="{x:Bind BoolToVisibility(ViewModel.IsDownloading), Mode=OneWay}">
+                    <Grid>
+                        <TextBlock Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Text="{x:Bind GetProgressText(ViewModel.ProgressValue), Mode=OneWay}" 
+                                   HorizontalAlignment="Right" 
+                                   Style="{ThemeResource CaptionTextBlockStyle}" 
+                                   Visibility="{x:Bind NegateBoolToVisibility(ViewModel.IsIndeterminate), Mode=OneWay}" />
+                    </Grid>
+                    <ProgressBar Value="{x:Bind ViewModel.ProgressValue, Mode=OneWay}" 
+                                 IsIndeterminate="{x:Bind ViewModel.IsIndeterminate, Mode=OneWay}" 
+                                 Height="8" 
+                                 CornerRadius="4" />
+                </StackPanel>
+
+                <!-- Status Message when not downloading -->
+                <TextBlock Grid.Row="2" 
+                           Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" 
+                           Style="{ThemeResource BodyTextBlockStyle}" 
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Visibility="{x:Bind NegateBoolToVisibility(ViewModel.IsDownloading), Mode=OneWay}" />
+            </Grid>
+        </Border>
+    </Grid>
+</Page>
