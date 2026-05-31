@@ -42,7 +42,7 @@
 
 ### 运行环境要求
 - **操作系统**：Windows 10 Build 17763 (1809) 或更高版本 (推荐 Windows 11)。
-- **依赖组件**：本地需装有 [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)（如果下载了 `Self-Contained` 独立运行版，则无需额外安装 .NET 运行时）。
+- **依赖组件**：本地需装有 [.NET 9 Runtime](https://dotnet.microsoft.com/download/dotnet/9.0)（如果下载了 `Self-Contained` 独立运行版，则无需额外安装 .NET 运行时）。
 
 ### 安装与运行 (便携版)
 1. 前往本仓库的 [Releases 发行版页面](https://github.com/tom613951/scrcpy-gui-winui3/releases)。
