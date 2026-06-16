@@ -1,0 +1,43 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build and Publish Portable App
+      run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish/portable
+
+    - name: Zip Output
+      run: Compress-Archive -Path "publish/portable/*" -DestinationPath "scrcpy-gui-winui3-portable.zip" -Force
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: "auto-build-${{ github.run_number }}"
+        name: "Automated Build #${{ github.run_number }}"
+        body: "自动构建发布的免安装便携版 (Portable ZIP)。解压即用。"
+        files: scrcpy-gui-winui3-portable.zip
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
