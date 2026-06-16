@@ -15,29 +15,8 @@ namespace ScrcpyGui
 
             AppWindow.SetIcon("Assets/AppIcon.ico");
 
-            // Select the first item on startup
-            NavView.SelectedItem = DeviceItem;
-        }
-
-        private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
-        {
-            if (args.IsSettingsSelected)
-            {
-                ContentFrame.Navigate(typeof(SettingsPage));
-            }
-            else if (args.SelectedItemContainer != null)
-            {
-                var tag = args.SelectedItemContainer.Tag?.ToString();
-                switch (tag)
-                {
-                    case "Devices":
-                        ContentFrame.Navigate(typeof(DevicePage));
-                        break;
-                    case "PackageManager":
-                        ContentFrame.Navigate(typeof(DownloaderPage));
-                        break;
-                }
-            }
+            // Navigate directly to DevicePage on startup
+            ContentFrame.Navigate(typeof(DevicePage));
         }
     }
 }

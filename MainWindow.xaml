@@ -24,18 +24,6 @@
             </TitleBar.IconSource>
         </TitleBar>
 
-        <NavigationView x:Name="NavView" 
-                        Grid.Row="1"
-                        PaneDisplayMode="Left"
-                        IsBackButtonVisible="Collapsed"
-                        IsSettingsVisible="True"
-                        SelectionChanged="NavView_SelectionChanged">
-            <NavigationView.MenuItems>
-                <NavigationViewItem x:Name="DeviceItem" Content="设备列表" Icon="CellPhone" Tag="Devices" />
-                <NavigationViewItem x:Name="DownloadItem" Content="安装/管理器" Icon="Download" Tag="PackageManager" />
-            </NavigationView.MenuItems>
-
-            <Frame x:Name="ContentFrame" Margin="12" />
-        </NavigationView>
+        <Frame x:Name="ContentFrame" Grid.Row="1" Margin="12" />
     </Grid>
 </Window>

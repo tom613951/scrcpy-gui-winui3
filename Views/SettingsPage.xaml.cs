@@ -35,6 +35,18 @@ namespace ScrcpyGui.Views
         public Visibility BoolToVisibility(bool value) => value ? Visibility.Visible : Visibility.Collapsed;
         public Visibility IsSessionMode(string currentMode, string targetMode) => currentMode == targetMode ? Visibility.Visible : Visibility.Collapsed;
 
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.Frame.CanGoBack)
+            {
+                this.Frame.GoBack();
+            }
+            else
+            {
+                this.Frame.Navigate(typeof(DevicePage));
+            }
+        }
+
         private async void BrowseButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -58,6 +70,32 @@ namespace ScrcpyGui.Views
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error selecting folder: {ex.Message}");
+            }
+        }
+
+        private async void BrowseAdbButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var filePicker = new Windows.Storage.Pickers.FileOpenPicker();
+                filePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder;
+                filePicker.FileTypeFilter.Add(".exe");
+
+                // Retrieve the window handle (HWND) of the current WinUI 3 window.
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindowInstance);
+                
+                // Initialize the folder picker with the window handle.
+                WinRT.Interop.InitializeWithWindow.Initialize(filePicker, hwnd);
+
+                var file = await filePicker.PickSingleFileAsync();
+                if (file != null)
+                {
+                    ViewModel.CustomAdbPath = file.Path;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error selecting file: {ex.Message}");
             }
         }
     }

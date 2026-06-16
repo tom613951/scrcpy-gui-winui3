@@ -231,22 +231,24 @@ namespace ScrcpyGui.ViewModels
             }
         }
 
-        public bool UseCustomScrcpyPath
+        public string CurrentScrcpyDirectory => _pathService.ScrcpyDirectory;
+
+        public string CustomAdbPath
         {
-            get => Settings.UseCustomScrcpyPath;
+            get => Settings.CustomAdbPath;
             set
             {
-                if (Settings.UseCustomScrcpyPath != value)
+                if (Settings.CustomAdbPath != value)
                 {
-                    Settings.UseCustomScrcpyPath = value;
+                    Settings.CustomAdbPath = value;
                     OnPropertyChanged();
                     _settingsService.SaveSettings();
-                    OnPropertyChanged(nameof(CurrentScrcpyDirectory));
+                    OnPropertyChanged(nameof(CurrentAdbPath));
                 }
             }
         }
 
-        public string CurrentScrcpyDirectory => _pathService.ScrcpyDirectory;
+        public string CurrentAdbPath => _pathService.AdbPath;
 
         // Session Mode
         public string SessionMode

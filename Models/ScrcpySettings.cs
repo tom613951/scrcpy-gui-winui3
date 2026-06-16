@@ -17,9 +17,8 @@ namespace ScrcpyGui.Models
         public bool Fullscreen { get; set; } = false;
         public string CustomArguments { get; set; } = string.Empty;
         
-        // Custom binary path settings
         public string CustomScrcpyPath { get; set; } = string.Empty;
-        public bool UseCustomScrcpyPath { get; set; } = false;
+        public string CustomAdbPath { get; set; } = string.Empty;
 
         // Session Mode: "mirror", "camera", "desktop"
         public string SessionMode { get; set; } = "mirror";

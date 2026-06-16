@@ -39,11 +39,9 @@ namespace ScrcpyGui
             services.AddSingleton<SettingsService>();
             services.AddSingleton<AdbService>();
             services.AddSingleton<ScrcpyService>();
-            services.AddSingleton<UpdateService>();
 
             // Register ViewModels
             services.AddSingleton<SettingsViewModel>();
-            services.AddSingleton<DownloaderViewModel>();
             services.AddSingleton<DeviceViewModel>();
 
             ServiceProvider = services.BuildServiceProvider();

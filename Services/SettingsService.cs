@@ -65,14 +65,8 @@ namespace ScrcpyGui.Services
 
         public void ApplySettings()
         {
-            if (Settings.UseCustomScrcpyPath && !string.IsNullOrEmpty(Settings.CustomScrcpyPath))
-            {
-                _pathService.ScrcpyDirectory = Settings.CustomScrcpyPath;
-            }
-            else
-            {
-                _pathService.ResetToDefault();
-            }
+            _pathService.ScrcpyDirectory = Settings.CustomScrcpyPath;
+            _pathService.CustomAdbPath = Settings.CustomAdbPath;
         }
     }
 }

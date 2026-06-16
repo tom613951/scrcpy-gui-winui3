@@ -14,15 +14,19 @@
         </Grid.RowDefinitions>
 
         <!-- Page Header -->
-        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,16">
-            <TextBlock Text="系统设置" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="SemiBold" />
-            <TextBlock Text="配置 scrcpy 投屏属性与应用程序运行路径" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" Margin="0,0,0,16">
+            <Button Click="BackButton_Click" Style="{ThemeResource NavigationBackButtonNormalStyle}" VerticalAlignment="Center" />
+            <StackPanel Spacing="4">
+                <TextBlock Text="系统设置" Style="{ThemeResource TitleTextBlockStyle}" FontWeight="SemiBold" />
+                <TextBlock Text="配置 scrcpy 投屏属性与应用程序运行路径" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
         </StackPanel>
 
         <!-- Scrollable Settings Groups -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="24" Padding="0,0,16,24">
                 
+
                 <!-- Group 0: Session Mode -->
                 <StackPanel Spacing="8">
                     <TextBlock Text="投屏模式" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
@@ -265,37 +269,34 @@
                 <StackPanel Spacing="8">
                     <TextBlock Text="系统路径与命令行自定义" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
 
-                    <!-- Card: Custom scrcpy Path Toggle -->
-                    <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Spacing="4">
-                                <TextBlock Text="使用自定义 scrcpy 路径" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                <TextBlock Text="指定本地已有的 scrcpy 文件夹，而不使用本软件自动下载托管的版本" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                            </StackPanel>
-                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.UseCustomScrcpyPath, Mode=TwoWay}" OnContent="" OffContent="" />
-                        </Grid>
-                    </Border>
-
                     <!-- Card: Custom Path Textbox -->
                     <Border CornerRadius="8" BorderThickness="1" 
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                            Padding="16" 
-                            Visibility="{x:Bind BoolToVisibility(ViewModel.UseCustomScrcpyPath), Mode=OneWay}">
-                        <Grid ColumnSpacing="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBox Header="自定义 scrcpy 目录路径" Text="{x:Bind ViewModel.CustomScrcpyPath, Mode=TwoWay}" PlaceholderText="例如 C:\tools\scrcpy-win64" HorizontalAlignment="Stretch" />
-                            <Button Grid.Column="1" VerticalAlignment="Bottom" Click="BrowseButton_Click">
-                                <SymbolIcon Symbol="Folder" />
-                            </Button>
-                        </Grid>
+                            Padding="16">
+                        <StackPanel Spacing="16">
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Header="scrcpy 目录路径" Text="{x:Bind ViewModel.CustomScrcpyPath, Mode=TwoWay}" PlaceholderText="例如 C:\tools\scrcpy-win64" HorizontalAlignment="Stretch" />
+                                <Button Grid.Column="1" VerticalAlignment="Bottom" Click="BrowseButton_Click">
+                                    <SymbolIcon Symbol="Folder" />
+                                </Button>
+                            </Grid>
+
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Header="自定义 adb.exe 路径（选填）" Text="{x:Bind ViewModel.CustomAdbPath, Mode=TwoWay}" PlaceholderText="留空则默认使用 scrcpy 目录下的 adb.exe" HorizontalAlignment="Stretch" />
+                                <Button Grid.Column="1" VerticalAlignment="Bottom" Click="BrowseAdbButton_Click">
+                                    <SymbolIcon Symbol="Document" />
+                                </Button>
+                            </Grid>
+                        </StackPanel>
                     </Border>
 
                     <!-- Card: Custom CLI Args -->
