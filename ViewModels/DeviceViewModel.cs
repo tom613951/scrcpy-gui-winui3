@@ -48,6 +48,7 @@ namespace ScrcpyGui.ViewModels
         public IAsyncRelayCommand WirelessConnectCommand { get; }
         public IAsyncRelayCommand WirelessPairCommand { get; }
         public IRelayCommand ClearLogCommand { get; }
+        public IAsyncRelayCommand KillAdbCommand { get; }
 
         public DeviceViewModel(
             AdbService adbService, 
@@ -65,6 +66,7 @@ namespace ScrcpyGui.ViewModels
             WirelessConnectCommand = new AsyncRelayCommand(WirelessConnectAsync);
             WirelessPairCommand = new AsyncRelayCommand(WirelessPairAsync);
             ClearLogCommand = new RelayCommand(() => LogOutput = string.Empty);
+            KillAdbCommand = new AsyncRelayCommand(KillAdbAsync);
 
             // Initial verification of binaries
             CheckBinaries();
@@ -162,6 +164,47 @@ namespace ScrcpyGui.ViewModels
             WirelessStatusMessage = "正在配对...";
             var result = await _adbService.PairWirelessAsync(WirelessIpAddress, (int)WirelessPort, PairingCode);
             WirelessStatusMessage = result;
+        }
+
+        public async Task PushFileOrInstallApkAsync(string filePath)
+        {
+            if (SelectedDevice == null)
+            {
+                AppendLog("拖拽操作失败：未选择设备！");
+                return;
+            }
+
+            try
+            {
+                if (filePath.EndsWith(".apk", StringComparison.OrdinalIgnoreCase))
+                {
+                    AppendLog($"正在安装 APK: {filePath}");
+                    var result = await _adbService.InstallApkAsync(SelectedDevice.Serial, filePath);
+                    AppendLog($"安装结果: {result}");
+                }
+                else
+                {
+                    AppendLog($"正在推送文件: {filePath}");
+                    var result = await _adbService.PushFileAsync(SelectedDevice.Serial, filePath);
+                    AppendLog($"推送结果: {result}");
+                }
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"传输错误: {ex.Message}");
+            }
+        }
+
+        private async Task KillAdbAsync()
+        {
+            IsRefreshing = true;
+            AppendLog("正在终止 ADB 服务...");
+            var result = await _adbService.KillServerAsync();
+            AppendLog($"ADB 服务已终止。{result}");
+            
+            // Wait a moment and refresh
+            await Task.Delay(500);
+            await RefreshDevicesAsync();
         }
 
         private void AppendLog(string message)

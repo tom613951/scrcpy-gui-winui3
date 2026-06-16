@@ -247,5 +247,190 @@ namespace ScrcpyGui.ViewModels
         }
 
         public string CurrentScrcpyDirectory => _pathService.ScrcpyDirectory;
+
+        // Session Mode
+        public string SessionMode
+        {
+            get => Settings.SessionMode;
+            set
+            {
+                if (Settings.SessionMode != value)
+                {
+                    Settings.SessionMode = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsCameraMode));
+                    OnPropertyChanged(nameof(IsDesktopMode));
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        public bool IsCameraMode => SessionMode == "camera";
+        public bool IsDesktopMode => SessionMode == "desktop";
+
+        // HID Keyboard
+        public bool HidKeyboard
+        {
+            get => Settings.HidKeyboard;
+            set
+            {
+                if (Settings.HidKeyboard != value)
+                {
+                    Settings.HidKeyboard = value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        // HID Mouse
+        public bool HidMouse
+        {
+            get => Settings.HidMouse;
+            set
+            {
+                if (Settings.HidMouse != value)
+                {
+                    Settings.HidMouse = value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        // Camera Id
+        public string CameraId
+        {
+            get => Settings.CameraId;
+            set
+            {
+                if (Settings.CameraId != value)
+                {
+                    Settings.CameraId = value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        // Codec
+        public string Codec
+        {
+            get => Settings.Codec;
+            set
+            {
+                if (Settings.Codec != value)
+                {
+                    Settings.Codec = value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        // Camera AR
+        public string CameraAr
+        {
+            get => Settings.CameraAr;
+            set
+            {
+                if (Settings.CameraAr != value)
+                {
+                    Settings.CameraAr = value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        // Camera Torch
+        public bool CameraTorch
+        {
+            get => Settings.CameraTorch;
+            set
+            {
+                if (Settings.CameraTorch != value)
+                {
+                    Settings.CameraTorch = value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        // VdWidth
+        public double VdWidth
+        {
+            get => Settings.VdWidth;
+            set
+            {
+                if (Settings.VdWidth != (int)value)
+                {
+                    Settings.VdWidth = (int)value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        // VdHeight
+        public double VdHeight
+        {
+            get => Settings.VdHeight;
+            set
+            {
+                if (Settings.VdHeight != (int)value)
+                {
+                    Settings.VdHeight = (int)value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        // VdDpi
+        public double VdDpi
+        {
+            get => Settings.VdDpi;
+            set
+            {
+                if (Settings.VdDpi != (int)value)
+                {
+                    Settings.VdDpi = (int)value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        // FlexDisplay
+        public bool FlexDisplay
+        {
+            get => Settings.FlexDisplay;
+            set
+            {
+                if (Settings.FlexDisplay != value)
+                {
+                    Settings.FlexDisplay = value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        // BackgroundColor
+        public string BackgroundColor
+        {
+            get => Settings.BackgroundColor;
+            set
+            {
+                if (Settings.BackgroundColor != value)
+                {
+                    Settings.BackgroundColor = value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
     }
 }

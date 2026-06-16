@@ -23,6 +23,58 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="24" Padding="0,0,16,24">
                 
+                <!-- Group 0: Session Mode -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="投屏模式" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
+                    
+                    <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="200" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="运行模式" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="选择投屏内容（屏幕、相机、桌面）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                            <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectedValue="{x:Bind ViewModel.SessionMode, Mode=TwoWay}" SelectedValuePath="Tag">
+                                <ComboBoxItem Content="屏幕镜像 (Mirror)" Tag="mirror" />
+                                <ComboBoxItem Content="相机投屏 (Camera)" Tag="camera" />
+                                <ComboBoxItem Content="虚拟桌面 (Desktop)" Tag="desktop" />
+                            </ComboBox>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Camera Mode Specific Settings -->
+                    <StackPanel Spacing="8" Visibility="{x:Bind BoolToVisibility(ViewModel.IsCameraMode), Mode=OneWay}">
+                        <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="相机模式专属配置" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                
+                                <TextBox Header="Camera ID" Text="{x:Bind ViewModel.CameraId, Mode=TwoWay}" PlaceholderText="留空则自动选择" />
+                                <TextBox Header="视频编码器 (Codec)" Text="{x:Bind ViewModel.Codec, Mode=TwoWay}" PlaceholderText="例如 h264, h265, av1" />
+                                <TextBox Header="相机画面比例 (Aspect Ratio)" Text="{x:Bind ViewModel.CameraAr, Mode=TwoWay}" PlaceholderText="例如 16:9, 4:3" />
+                                <ToggleSwitch Header="开启闪光灯 (Torch)" IsOn="{x:Bind ViewModel.CameraTorch, Mode=TwoWay}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Desktop Mode Specific Settings -->
+                    <StackPanel Spacing="8" Visibility="{x:Bind BoolToVisibility(ViewModel.IsDesktopMode), Mode=OneWay}">
+                        <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="虚拟桌面专属配置" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                
+                                <NumberBox Header="桌面宽度 (px)" Value="{x:Bind ViewModel.VdWidth, Mode=TwoWay}" SpinButtonPlacementMode="Inline" />
+                                <NumberBox Header="桌面高度 (px)" Value="{x:Bind ViewModel.VdHeight, Mode=TwoWay}" SpinButtonPlacementMode="Inline" />
+                                <NumberBox Header="DPI (缩放)" Value="{x:Bind ViewModel.VdDpi, Mode=TwoWay}" SpinButtonPlacementMode="Inline" />
+                                <ToggleSwitch Header="动态显示调整 (Flex Display)" IsOn="{x:Bind ViewModel.FlexDisplay, Mode=TwoWay}" />
+                                <TextBox Header="背景颜色 (Hex)" Text="{x:Bind ViewModel.BackgroundColor, Mode=TwoWay}" PlaceholderText="#222222" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
                 <!-- Group 1: Performance & Quality -->
                 <StackPanel Spacing="8">
                     <TextBlock Text="性能与分辨率" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
@@ -132,6 +184,36 @@
                 <!-- Group 3: Keyboard/Mouse OTG & Display -->
                 <StackPanel Spacing="8">
                     <TextBlock Text="窗口与输入控制" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
+
+                    <!-- Card: HID Keyboard -->
+                    <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="UHID 物理键盘模拟 (HID Keyboard)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="使用 UHID 协议直连设备，跳过安卓输入法，支持系统级快捷键（需连接 USB）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.HidKeyboard, Mode=TwoWay}" OnContent="" OffContent="" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Card: HID Mouse -->
+                    <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="UHID 物理鼠标模拟 (HID Mouse)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="使用 UHID 协议直连设备，捕获鼠标原始移动事件，适合打游戏（需连接 USB）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.HidMouse, Mode=TwoWay}" OnContent="" OffContent="" />
+                        </Grid>
+                    </Border>
 
                     <!-- Card: Keep On Top -->
                     <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">

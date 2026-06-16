@@ -160,5 +160,17 @@ namespace ScrcpyGui.Services
         {
             return await RunAdbCommandAsync("start-server");
         }
+
+        public async Task<string> PushFileAsync(string serial, string localFilePath, string remotePath = "/sdcard/Download/")
+        {
+            // Increase timeout for file transfers (e.g., 60 seconds)
+            return await RunAdbCommandAsync($"-s {serial} push \"{localFilePath}\" \"{remotePath}\"", 60000);
+        }
+
+        public async Task<string> InstallApkAsync(string serial, string apkFilePath)
+        {
+            // Increase timeout for apk installation (e.g., 60 seconds)
+            return await RunAdbCommandAsync($"-s {serial} install \"{apkFilePath}\"", 60000);
+        }
     }
 }

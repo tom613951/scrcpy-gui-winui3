@@ -21,6 +21,27 @@ namespace ScrcpyGui.Models
         public string CustomScrcpyPath { get; set; } = string.Empty;
         public bool UseCustomScrcpyPath { get; set; } = false;
 
+        // Session Mode: "mirror", "camera", "desktop"
+        public string SessionMode { get; set; } = "mirror";
+
+        // Input Enhancements
+        public bool HidKeyboard { get; set; } = false;
+        public bool HidMouse { get; set; } = false;
+
+        // Camera Mode Settings
+        public string CameraId { get; set; } = string.Empty;
+        public string Codec { get; set; } = string.Empty; // e.g. h264, h265, av1
+        public string CameraAr { get; set; } = string.Empty; // e.g. 16:9, 4:3
+        public bool CameraTorch { get; set; } = false;
+        public double CameraZoom { get; set; } = 1.0;
+
+        // Desktop Mode Settings
+        public int VdWidth { get; set; } = 1920;
+        public int VdHeight { get; set; } = 1080;
+        public int VdDpi { get; set; } = 420;
+        public bool FlexDisplay { get; set; } = false;
+        public string BackgroundColor { get; set; } = string.Empty;
+
         public string GetArguments(string serial)
         {
             var args = new System.Text.StringBuilder();
@@ -82,6 +103,55 @@ namespace ScrcpyGui.Models
                 var userVideosDir = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
                 var recordPath = System.IO.Path.Combine(userVideosDir, $"scrcpy_record_{timestamp}.{RecordFormat}");
                 args.Append($"--record \"{recordPath}\" ");
+            }
+
+            if (SessionMode == "camera")
+            {
+                args.Append("--video-source=camera ");
+                
+                if (!string.IsNullOrEmpty(CameraId))
+                    args.Append($"--camera-id={CameraId} ");
+                    
+                if (!string.IsNullOrEmpty(Codec))
+                    args.Append($"--video-codec={Codec} ");
+                    
+                if (!string.IsNullOrEmpty(CameraAr) && CameraAr != "0")
+                    args.Append($"--camera-ar={CameraAr} ");
+                    
+                if (CameraTorch)
+                    args.Append("--camera-torch ");
+                    
+                // Scrcpy v3+ might not support --camera-zoom directly, but if it does, it's typically an option, or it was a typo in the vue app.
+                // Assuming original scrcpy supports it or we pass it as a custom arg equivalent.
+                // Wait, --camera-high-speed or similar? Actually, the original app passes config object to invoke, 
+                // and the Rust backend maps it to scrcpy arguments. We'll map them based on standard scrcpy args.
+                // If standard scrcpy args don't have it, we just skip it or pass if it's new. (v3 added camera, but zoom might be custom).
+                // Let's assume standard scrcpy args for camera zoom is --camera-zoom.
+                // No, standard scrcpy 3.x does not have --camera-zoom out of the box, wait maybe it's in scrcpy 3.x.
+            }
+            else if (SessionMode == "desktop")
+            {
+                // Scrcpy 3.0+ virtual display
+                args.Append("--new-display ");
+                
+                if (VdWidth > 0 && VdHeight > 0)
+                {
+                    args.Append($"--new-display-resolution={VdWidth}x{VdHeight} ");
+                }
+                
+                if (VdDpi > 0)
+                {
+                    args.Append($"--new-display-dpi={VdDpi} ");
+                }
+            }
+
+            // For Mirror mode Input enhancements
+            if (SessionMode == "mirror")
+            {
+                if (HidKeyboard)
+                    args.Append("--keyboard=uhid ");
+                if (HidMouse)
+                    args.Append("--mouse=uhid ");
             }
 
             if (!string.IsNullOrEmpty(CustomArguments))

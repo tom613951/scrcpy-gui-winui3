@@ -6,7 +6,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:ScrcpyGui.Models"
     mc:Ignorable="d"
-    Background="Transparent">
+    Background="Transparent"
+    AllowDrop="True"
+    DragOver="Page_DragOver"
+    Drop="Page_Drop">
 
     <Grid Margin="12" RowSpacing="16">
         <Grid.RowDefinitions>
@@ -36,6 +39,12 @@
                         <TextBlock Text="缺少 scrcpy 运行组件！请前往“安装/管理器”下载安装。" Foreground="#9F6A00" VerticalAlignment="Center" FontWeight="Medium" />
                     </StackPanel>
                 </Border>
+                <Button Command="{x:Bind ViewModel.KillAdbCommand}" ToolTipService.ToolTip="强制终止并重启 ADB 进程">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Cancel" />
+                        <TextBlock Text="终止 ADB 服务" />
+                    </StackPanel>
+                </Button>
                 
                 <Button Command="{x:Bind ViewModel.RefreshDevicesCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="8">

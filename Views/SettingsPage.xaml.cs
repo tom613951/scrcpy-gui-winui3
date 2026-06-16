@@ -28,23 +28,19 @@ namespace ScrcpyGui.Views
             }
         }
 
-        public string GetMaxSizeHeader(double value)
-        {
-            return value == 0 ? "分辨率限制：无限制（原生）" : $"分辨率限制：{value} 像素";
-        }
+        public string GetMaxSizeHeader(double value) => value == 0 ? "不限制" : $"{value} px";
 
-        public string GetMaxFpsHeader(double value)
-        {
-            return value == 0 ? "帧率限制：无限制" : $"帧率限制：{value} 帧";
-        }
+        public string GetMaxFpsHeader(double value) => value == 0 ? "不限制" : $"{value} FPS";
 
         public Visibility BoolToVisibility(bool value) => value ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility IsSessionMode(string currentMode, string targetMode) => currentMode == targetMode ? Visibility.Visible : Visibility.Collapsed;
 
         private async void BrowseButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+                folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder;
                 folderPicker.FileTypeFilter.Add("*");
 
                 // Retrieve the window handle (HWND) of the current WinUI 3 window.

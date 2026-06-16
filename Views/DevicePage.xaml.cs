@@ -28,5 +28,31 @@ namespace ScrcpyGui.Views
         public Visibility BoolToVisibility(bool value) => value ? Visibility.Visible : Visibility.Collapsed;
         public Visibility IsListEmpty(int count) => count == 0 ? Visibility.Visible : Visibility.Collapsed;
         public Visibility IsListNotEmpty(int count) => count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        private void Page_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.DataView.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.StorageItems))
+            {
+                e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.Copy;
+            }
+        }
+
+        private async void Page_Drop(object sender, DragEventArgs e)
+        {
+            if (e.DataView.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.StorageItems))
+            {
+                var items = await e.DataView.GetStorageItemsAsync();
+                if (items.Count > 0)
+                {
+                    foreach (var item in items)
+                    {
+                        if (item is Windows.Storage.StorageFile file)
+                        {
+                            await ViewModel.PushFileOrInstallApkAsync(file.Path);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
