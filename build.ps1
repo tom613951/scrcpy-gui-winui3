@@ -36,7 +36,7 @@ Write-Host "准备发布到 GitHub Release: $newTag" -ForegroundColor Cyan
 $env:GITHUB_TOKEN = ""
 
 Write-Host "正在推送到 GitHub Releases..." -ForegroundColor Cyan
-gh release create $newTag --title "$newTag 自动打包更新" --notes "更新内容：`n- 修复相机投屏时手机竖直方向的画面旋转问题" scrcpy-gui-winui3-portable.zip
+gh release create $newTag --title "$newTag 自动打包更新" --notes "更新内容：`n- 修复关闭程序后自动结束 adb 进程的问题" scrcpy-gui-winui3-portable.zip
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "🎉 打包发布成功！" -ForegroundColor Green
