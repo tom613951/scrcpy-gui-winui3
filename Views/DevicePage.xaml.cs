@@ -59,5 +59,17 @@ namespace ScrcpyGui.Views
         {
             this.Frame.Navigate(typeof(SettingsPage));
         }
+
+        private void TerminalInput_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                if (ViewModel.RunTerminalCommand.CanExecute(null))
+                {
+                    ViewModel.RunTerminalCommand.Execute(null);
+                    e.Handled = true;
+                }
+            }
+        }
     }
 }

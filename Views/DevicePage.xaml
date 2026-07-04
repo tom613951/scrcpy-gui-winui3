@@ -200,6 +200,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <Grid Grid.Row="0" Margin="0,0,0,8">
@@ -217,7 +218,7 @@
                         </StackPanel>
                     </Grid>
 
-                    <ScrollViewer Grid.Row="1" Background="Black" CornerRadius="4" Padding="12">
+                    <ScrollViewer Grid.Row="1" Background="Black" CornerRadius="4" Padding="12" Margin="0,0,0,12">
                         <TextBlock Text="{x:Bind ViewModel.LogOutput, Mode=OneWay}" 
                                    FontFamily="Consolas" 
                                    FontSize="12" 
@@ -225,6 +226,17 @@
                                    TextWrapping="Wrap"
                                    IsTextSelectionEnabled="True" />
                     </ScrollViewer>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Text="{x:Bind ViewModel.TerminalInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="输入终端命令并按 Enter 执行 (例如 .\scrcpy.exe --list-cameras)" KeyDown="TerminalInput_KeyDown" FontFamily="Consolas" />
+                        <Button Grid.Column="1" Command="{x:Bind ViewModel.RunTerminalCommand}" Margin="12,0,0,0" Style="{ThemeResource AccentButtonStyle}">
+                            <SymbolIcon Symbol="Send" />
+                        </Button>
+                    </Grid>
                 </Grid>
             </Border>
         </Grid>

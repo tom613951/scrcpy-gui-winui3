@@ -43,12 +43,16 @@ namespace ScrcpyGui.ViewModels
         [ObservableProperty]
         private bool _isBinariesMissing = false;
 
+        [ObservableProperty]
+        private string _terminalInput = string.Empty;
+
         public IAsyncRelayCommand RefreshDevicesCommand { get; }
         public IAsyncRelayCommand StartMirroringCommand { get; }
         public IAsyncRelayCommand WirelessConnectCommand { get; }
         public IAsyncRelayCommand WirelessPairCommand { get; }
         public IRelayCommand ClearLogCommand { get; }
         public IAsyncRelayCommand KillAdbCommand { get; }
+        public IAsyncRelayCommand RunTerminalCommand { get; }
 
         public DeviceViewModel(
             AdbService adbService, 
@@ -67,6 +71,7 @@ namespace ScrcpyGui.ViewModels
             WirelessPairCommand = new AsyncRelayCommand(WirelessPairAsync);
             ClearLogCommand = new RelayCommand(() => LogOutput = string.Empty);
             KillAdbCommand = new AsyncRelayCommand(KillAdbAsync);
+            RunTerminalCommand = new AsyncRelayCommand(RunTerminalCommandAsync);
 
             // Initial verification of binaries
             CheckBinaries();
@@ -205,6 +210,59 @@ namespace ScrcpyGui.ViewModels
             // Wait a moment and refresh
             await Task.Delay(500);
             await RefreshDevicesAsync();
+        }
+
+        private async Task RunTerminalCommandAsync()
+        {
+            var command = TerminalInput?.Trim();
+            if (string.IsNullOrEmpty(command)) return;
+
+            // Clear input
+            TerminalInput = string.Empty;
+
+            AppendLog($"\n> {command}");
+
+            try
+            {
+                var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "powershell.exe",
+                        Arguments = $"-NoProfile -Command \"{command.Replace("\"", "\\\"")}\"",
+                        WorkingDirectory = System.IO.Directory.Exists(_pathService.ScrcpyDirectory) ? _pathService.ScrcpyDirectory : AppDomain.CurrentDomain.BaseDirectory,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    },
+                    EnableRaisingEvents = true
+                };
+
+                process.OutputDataReceived += (s, e) =>
+                {
+                    if (e.Data != null)
+                    {
+                        App.MainWindowInstance?.DispatcherQueue.TryEnqueue(() => AppendLog(e.Data));
+                    }
+                };
+
+                process.ErrorDataReceived += (s, e) =>
+                {
+                    if (e.Data != null)
+                    {
+                        App.MainWindowInstance?.DispatcherQueue.TryEnqueue(() => AppendLog(e.Data));
+                    }
+                };
+
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"执行命令失败: {ex.Message}");
+            }
         }
 
         private void AppendLog(string message)
