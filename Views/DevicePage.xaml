@@ -15,7 +15,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Page Header & Actions -->
@@ -62,80 +61,140 @@
             </StackPanel>
         </Grid>
 
-        <!-- Content Area: Left side Device List / Right side Wireless panel -->
+        <!-- Content Area: Left side (List + Wireless) / Right side (Console) -->
         <Grid Grid.Row="1" ColumnSpacing="16">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*" />
                 <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
 
-            <!-- Device list column (UniGetUI Cards style) -->
-            <Grid>
-                <!-- Empty State Placeholder -->
-                <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="32" VerticalAlignment="Top"
-                        Visibility="{x:Bind IsListEmpty(ViewModel.Devices.Count), Mode=OneWay}">
-                    <StackPanel Spacing="16" HorizontalAlignment="Center">
-                        <SymbolIcon Symbol="CellPhone" Height="48" Width="48" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                        <TextBlock Text="未找到已连接的设备" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" FontWeight="Medium" />
-                        <TextBlock Text="请通过 USB 数据线连接您的安卓设备（需开启“开发者选项”与“USB 调试”），或使用右侧的无线连接面板进行连接。" Style="{ThemeResource BodyTextBlockStyle}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" MaxWidth="400" />
+            <!-- Left Column: Devices and Wireless -->
+            <Grid Grid.Column="0" RowSpacing="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Device list column (UniGetUI Cards style) -->
+                <Grid Grid.Row="0">
+                    <!-- Empty State Placeholder -->
+                    <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="32" VerticalAlignment="Top"
+                            Visibility="{x:Bind IsListEmpty(ViewModel.Devices.Count), Mode=OneWay}">
+                        <StackPanel Spacing="16" HorizontalAlignment="Center">
+                            <SymbolIcon Symbol="CellPhone" Height="48" Width="48" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                            <TextBlock Text="未找到已连接的设备" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" FontWeight="Medium" />
+                            <TextBlock Text="请通过 USB 数据线连接您的安卓设备（需开启“开发者选项”与“USB 调试”），或使用下方的无线连接面板进行连接。" Style="{ThemeResource BodyTextBlockStyle}" TextWrapping="Wrap" TextAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" MaxWidth="400" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Connected Devices Card List -->
+                    <ListView ItemsSource="{x:Bind ViewModel.Devices, Mode=OneWay}" 
+                              SelectedItem="{x:Bind ViewModel.SelectedDevice, Mode=TwoWay}"
+                              SelectionMode="Single"
+                              Visibility="{x:Bind IsListNotEmpty(ViewModel.Devices.Count), Mode=OneWay}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:AdbDevice">
+                                <!-- Card Container -->
+                                <Border Margin="0,4,0,4" 
+                                        HorizontalAlignment="Stretch"
+                                        CornerRadius="6" 
+                                        BorderThickness="1" 
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                                        Padding="16,12">
+                                    <Grid ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Device Icon -->
+                                        <FontIcon Glyph="&#xE8EA;" FontFamily="Segoe Fluent Icons" FontSize="28" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Center" />
+
+                                        <!-- Device info -->
+                                        <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+                                            <TextBlock Text="{x:Bind Model}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <!-- Connection Type icon -->
+                                                <FontIcon Glyph="{x:Bind ConnectionIcon}" FontFamily="Segoe Fluent Icons" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                                <TextBlock Text="{x:Bind Serial}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <!-- Connection status badge and quick mirror button -->
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                                            <Border CornerRadius="4" Padding="8,4" Background="{x:Bind StatusBrush}">
+                                                <TextBlock Text="{x:Bind StatusDisplayName}" Foreground="White" Style="{ThemeResource CaptionTextBlockStyle}" FontWeight="Bold" />
+                                            </Border>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Padding" Value="0" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </Grid>
+
+                <!-- Connect Card -->
+                <Border Grid.Row="1" CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                    <StackPanel Spacing="12">
+                        <StackPanel>
+                            <TextBlock Text="无线 ADB 连接" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" />
+                            <TextBlock Text="无线连接安卓设备（设备与电脑必须处于同一局域网中）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                        
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Header="IP 地址" Text="{x:Bind ViewModel.WirelessIpAddress, Mode=TwoWay}" PlaceholderText="例如 192.168.1.100" />
+                            <NumberBox Grid.Column="1" Header="ADB 端口" Value="{x:Bind ViewModel.WirelessPort, Mode=TwoWay}" PlaceholderText="默认 5555" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" />
+                            <Button Grid.Column="2" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.WirelessConnectCommand}" VerticalAlignment="Bottom">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <SymbolIcon Symbol="Remote" />
+                                    <TextBlock Text="连接" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
                     </StackPanel>
                 </Border>
 
-                <!-- Connected Devices Card List -->
-                <ListView ItemsSource="{x:Bind ViewModel.Devices, Mode=OneWay}" 
-                          SelectedItem="{x:Bind ViewModel.SelectedDevice, Mode=TwoWay}"
-                          SelectionMode="Single"
-                          Visibility="{x:Bind IsListNotEmpty(ViewModel.Devices.Count), Mode=OneWay}">
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="models:AdbDevice">
-                            <!-- Card Container -->
-                            <Border Margin="0,4,0,4" 
-                                    HorizontalAlignment="Stretch"
-                                    CornerRadius="6" 
-                                    BorderThickness="1" 
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                                    Padding="16,12">
-                                <Grid ColumnSpacing="16">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <!-- Device Icon -->
-                                    <FontIcon Glyph="&#xE8EA;" FontFamily="Segoe Fluent Icons" FontSize="28" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Center" />
-
-                                    <!-- Device info -->
-                                    <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
-                                        <TextBlock Text="{x:Bind Model}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <!-- Connection Type icon -->
-                                            <FontIcon Glyph="{x:Bind ConnectionIcon}" FontFamily="Segoe Fluent Icons" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
-                                            <TextBlock Text="{x:Bind Serial}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        </StackPanel>
-                                    </StackPanel>
-
-                                    <!-- Connection status badge and quick mirror button -->
-                                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
-                                        <Border CornerRadius="4" Padding="8,4" Background="{x:Bind StatusBrush}">
-                                            <TextBlock Text="{x:Bind StatusDisplayName}" Foreground="White" Style="{ThemeResource CaptionTextBlockStyle}" FontWeight="Bold" />
-                                        </Border>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                            <Setter Property="Padding" Value="0" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
+                <!-- Pairing Card -->
+                <Border Grid.Row="2" CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                    <StackPanel Spacing="12">
+                        <StackPanel>
+                            <TextBlock Text="Android 11+ 无线配对" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" />
+                            <TextBlock Text="使用开发者选项中的配对端口和配对码与设备进行配对" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                        
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Header="配对码" Text="{x:Bind ViewModel.PairingCode, Mode=TwoWay}" PlaceholderText="请输入配对码" />
+                            <Button Grid.Column="1" Command="{x:Bind ViewModel.WirelessPairCommand}" VerticalAlignment="Bottom">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <SymbolIcon Symbol="Permissions" />
+                                    <TextBlock Text="配对设备" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                        <TextBlock Text="{x:Bind ViewModel.WirelessStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                    </StackPanel>
+                </Border>
             </Grid>
 
-            <!-- ADB & Scrcpy Terminal log output panel -->
+            <!-- Right Column: ADB & Scrcpy Terminal log output panel -->
             <Border Grid.Column="1" CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -167,73 +226,6 @@
                                    IsTextSelectionEnabled="True" />
                     </ScrollViewer>
                 </Grid>
-            </Border>
-        </Grid>
-
-        <!-- Wireless Connect / Pairing Panel (Bottom) -->
-        <Grid Grid.Row="2" ColumnSpacing="16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <!-- Connect Card -->
-            <Border Grid.Column="0" CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
-                <Grid ColumnSpacing="16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    
-                    <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Spacing="12">
-                        <StackPanel>
-                            <TextBlock Text="无线 ADB 连接" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" />
-                            <TextBlock Text="无线连接安卓设备（设备与电脑必须处于同一局域网中）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                        </StackPanel>
-                        
-                        <Grid ColumnSpacing="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*" />
-                                <ColumnDefinition Width="1*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" Header="IP 地址" Text="{x:Bind ViewModel.WirelessIpAddress, Mode=TwoWay}" PlaceholderText="例如 192.168.1.100" />
-                            <NumberBox Grid.Column="1" Header="ADB 端口" Value="{x:Bind ViewModel.WirelessPort, Mode=TwoWay}" PlaceholderText="默认 5555" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" />
-                            <Button Grid.Column="2" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.WirelessConnectCommand}" VerticalAlignment="Bottom">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <SymbolIcon Symbol="Remote" />
-                                    <TextBlock Text="立即连接" />
-                                </StackPanel>
-                            </Button>
-                        </Grid>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- Pairing Card -->
-            <Border Grid.Column="1" CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
-                <StackPanel Spacing="12">
-                    <StackPanel>
-                        <TextBlock Text="Android 11+ 无线配对" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" />
-                        <TextBlock Text="使用开发者选项中的配对端口和配对码与设备进行配对" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                    </StackPanel>
-                    
-                    <Grid ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBox Grid.Column="0" Header="配对码" Text="{x:Bind ViewModel.PairingCode, Mode=TwoWay}" PlaceholderText="请输入配对码" />
-                        <Button Grid.Column="1" Command="{x:Bind ViewModel.WirelessPairCommand}" VerticalAlignment="Bottom">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <SymbolIcon Symbol="Permissions" />
-                                <TextBlock Text="配对设备" />
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-                    <TextBlock Text="{x:Bind ViewModel.WirelessStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
-                </StackPanel>
             </Border>
         </Grid>
     </Grid>
