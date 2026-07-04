@@ -108,6 +108,9 @@ namespace ScrcpyGui.Models
             {
                 args.Append("--video-source=camera ");
                 
+                // Set default orientation for camera mode so portrait holding gives upright picture
+                args.Append("--orientation=90 ");
+                
                 if (!string.IsNullOrEmpty(CameraId))
                     args.Append($"--camera-id={CameraId} ");
                     
@@ -119,14 +122,6 @@ namespace ScrcpyGui.Models
                     
                 if (CameraTorch)
                     args.Append("--camera-torch ");
-                    
-                // Scrcpy v3+ might not support --camera-zoom directly, but if it does, it's typically an option, or it was a typo in the vue app.
-                // Assuming original scrcpy supports it or we pass it as a custom arg equivalent.
-                // Wait, --camera-high-speed or similar? Actually, the original app passes config object to invoke, 
-                // and the Rust backend maps it to scrcpy arguments. We'll map them based on standard scrcpy args.
-                // If standard scrcpy args don't have it, we just skip it or pass if it's new. (v3 added camera, but zoom might be custom).
-                // Let's assume standard scrcpy args for camera zoom is --camera-zoom.
-                // No, standard scrcpy 3.x does not have --camera-zoom out of the box, wait maybe it's in scrcpy 3.x.
             }
             else if (SessionMode == "desktop")
             {
