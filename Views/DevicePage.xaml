@@ -15,7 +15,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="200" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Page Header & Actions -->
@@ -135,79 +135,106 @@
                 </ListView>
             </Grid>
 
-            <!-- Wireless Connect / Pairing Panel (UniGetUI Right Panel Style) -->
-            <StackPanel Grid.Column="1" Spacing="16">
-                <!-- Connect Card -->
-                <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="无线 ADB 连接" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" />
-                        <TextBlock Text="无线连接安卓设备（设备与电脑必须处于同一局域网中）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                        
-                        <TextBox Header="IP 地址" Text="{x:Bind ViewModel.WirelessIpAddress, Mode=TwoWay}" PlaceholderText="例如 192.168.1.100" />
-                        <NumberBox Header="ADB 端口" Value="{x:Bind ViewModel.WirelessPort, Mode=TwoWay}" PlaceholderText="默认 5555" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" />
-                        
-                        <Button Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.WirelessConnectCommand}" HorizontalAlignment="Stretch">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <SymbolIcon Symbol="Remote" />
-                                <TextBlock Text="立即连接" />
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-                </Border>
+            <!-- ADB & Scrcpy Terminal log output panel -->
+            <Border Grid.Column="1" CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
 
-                <!-- Pairing Card -->
-                <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
-                    <StackPanel Spacing="12">
+                    <Grid Grid.Row="0" Margin="0,0,0,8">
+                        <TextBlock Text="scrcpy 进程控制台日志" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+                            <Button Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.StartMirroringCommand}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <SymbolIcon Symbol="Play" />
+                                    <TextBlock Text="启动投屏" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{x:Bind ViewModel.ClearLogCommand}" ToolTipService.ToolTip="清空控制台">
+                                <SymbolIcon Symbol="Clear" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="1" Background="Black" CornerRadius="4" Padding="12">
+                        <TextBlock Text="{x:Bind ViewModel.LogOutput, Mode=OneWay}" 
+                                   FontFamily="Consolas" 
+                                   FontSize="12" 
+                                   Foreground="LightGray" 
+                                   TextWrapping="Wrap"
+                                   IsTextSelectionEnabled="True" />
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Wireless Connect / Pairing Panel (Bottom) -->
+        <Grid Grid.Row="2" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Connect Card -->
+            <Border Grid.Column="0" CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Spacing="12">
+                        <StackPanel>
+                            <TextBlock Text="无线 ADB 连接" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" />
+                            <TextBlock Text="无线连接安卓设备（设备与电脑必须处于同一局域网中）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                        
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Header="IP 地址" Text="{x:Bind ViewModel.WirelessIpAddress, Mode=TwoWay}" PlaceholderText="例如 192.168.1.100" />
+                            <NumberBox Grid.Column="1" Header="ADB 端口" Value="{x:Bind ViewModel.WirelessPort, Mode=TwoWay}" PlaceholderText="默认 5555" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" />
+                            <Button Grid.Column="2" Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.WirelessConnectCommand}" VerticalAlignment="Bottom">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <SymbolIcon Symbol="Remote" />
+                                    <TextBlock Text="立即连接" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Pairing Card -->
+            <Border Grid.Column="1" CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                <StackPanel Spacing="12">
+                    <StackPanel>
                         <TextBlock Text="Android 11+ 无线配对" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" />
                         <TextBlock Text="使用开发者选项中的配对端口和配对码与设备进行配对" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                        
-                        <TextBox Header="配对码" Text="{x:Bind ViewModel.PairingCode, Mode=TwoWay}" PlaceholderText="请输入配对码" />
-                        
-                        <Button Command="{x:Bind ViewModel.WirelessPairCommand}" HorizontalAlignment="Stretch">
+                    </StackPanel>
+                    
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Header="配对码" Text="{x:Bind ViewModel.PairingCode, Mode=TwoWay}" PlaceholderText="请输入配对码" />
+                        <Button Grid.Column="1" Command="{x:Bind ViewModel.WirelessPairCommand}" VerticalAlignment="Bottom">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <SymbolIcon Symbol="Permissions" />
                                 <TextBlock Text="配对设备" />
                             </StackPanel>
                         </Button>
-                    </StackPanel>
-                </Border>
-
-                <!-- Status message output -->
-                <TextBlock Text="{x:Bind ViewModel.WirelessStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" />
-            </StackPanel>
+                    </Grid>
+                    <TextBlock Text="{x:Bind ViewModel.WirelessStatusMessage, Mode=OneWay}" TextWrapping="Wrap" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                </StackPanel>
+            </Border>
         </Grid>
-
-        <!-- ADB & Scrcpy Terminal log output panel (Bottom Card) -->
-        <Border Grid.Row="2" CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-
-                <Grid Grid.Row="0" Margin="0,0,0,8">
-                    <TextBlock Text="scrcpy 进程控制台日志" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
-                        <Button Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.StartMirroringCommand}">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <SymbolIcon Symbol="Play" />
-                                <TextBlock Text="启动投屏" />
-                            </StackPanel>
-                        </Button>
-                        <Button Command="{x:Bind ViewModel.ClearLogCommand}">
-                            <SymbolIcon Symbol="Clear" />
-                        </Button>
-                    </StackPanel>
-                </Grid>
-
-                <ScrollViewer Grid.Row="1" Background="Black" CornerRadius="4" Padding="12">
-                    <TextBlock Text="{x:Bind ViewModel.LogOutput, Mode=OneWay}" 
-                               FontFamily="Consolas" 
-                               FontSize="12" 
-                               Foreground="LightGray" 
-                               TextWrapping="Wrap" />
-                </ScrollViewer>
-            </Grid>
-        </Border>
     </Grid>
 </Page>

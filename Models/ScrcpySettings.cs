@@ -130,17 +130,28 @@ namespace ScrcpyGui.Models
             }
             else if (SessionMode == "desktop")
             {
-                // Scrcpy 3.0+ virtual display
-                args.Append("--new-display ");
-                
+                // Scrcpy 3.0+ virtual display uses --new-display[=<width>x<height>[/<dpi>]]
                 if (VdWidth > 0 && VdHeight > 0)
                 {
-                    args.Append($"--new-display-resolution={VdWidth}x{VdHeight} ");
+                    if (VdDpi > 0)
+                    {
+                        args.Append($"--new-display={VdWidth}x{VdHeight}/{VdDpi} ");
+                    }
+                    else
+                    {
+                        args.Append($"--new-display={VdWidth}x{VdHeight} ");
+                    }
                 }
-                
-                if (VdDpi > 0)
+                else
                 {
-                    args.Append($"--new-display-dpi={VdDpi} ");
+                    if (VdDpi > 0)
+                    {
+                        args.Append($"--new-display=/{VdDpi} ");
+                    }
+                    else
+                    {
+                        args.Append("--new-display ");
+                    }
                 }
             }
 
