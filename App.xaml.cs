@@ -27,7 +27,7 @@ namespace ScrcpyGui
             {
                 try
                 {
-                    System.IO.File.WriteAllText(@"C:\Users\26503\Documents\antigravity\crash.log", e.Exception?.ToString() ?? e.Message);
+                    PathService.WriteCrashLog(e.Exception?.ToString() ?? e.Message);
                 }
                 catch { }
             };

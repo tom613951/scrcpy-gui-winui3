@@ -16,10 +16,7 @@ namespace ScrcpyGui.Services
         {
             _pathService = pathService;
             
-            var folder = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "ScrcpyGui"
-            );
+            var folder = PathService.AppDataDirectory;
             Directory.CreateDirectory(folder);
             _settingsFilePath = Path.Combine(folder, "settings.json");
 

@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
@@ -16,6 +17,8 @@ namespace ScrcpyGui.Views
         {
             ViewModel = App.Services.GetService<DeviceViewModel>() ?? throw new NullReferenceException("DeviceViewModel not registered in DI container");
             InitializeComponent();
+            Loaded += DevicePage_Loaded;
+            Unloaded += DevicePage_Unloaded;
         }
 
         protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
@@ -28,6 +31,34 @@ namespace ScrcpyGui.Views
         public Visibility BoolToVisibility(bool value) => value ? Visibility.Visible : Visibility.Collapsed;
         public Visibility IsListEmpty(int count) => count == 0 ? Visibility.Visible : Visibility.Collapsed;
         public Visibility IsListNotEmpty(int count) => count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        private void DevicePage_Loaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+            ScrollLogToBottom();
+        }
+
+        private void DevicePage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+        }
+
+        private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(DeviceViewModel.LogOutput))
+            {
+                return;
+            }
+
+            DispatcherQueue.TryEnqueue(ScrollLogToBottom);
+        }
+
+        private void ScrollLogToBottom()
+        {
+            LogScrollViewer.UpdateLayout();
+            LogScrollViewer.ChangeView(null, LogScrollViewer.ScrollableHeight, null, true);
+        }
 
         private void Page_DragOver(object sender, DragEventArgs e)
         {

@@ -14,9 +14,17 @@
 
 ## 🚀 快速开始
 
-1. **环境准备**：此精简版需在电脑上预先安装 [.NET 9 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)。
+1. **环境准备**：此精简版需在电脑上预先安装 [.NET 9 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)。如果程序启动时报 WinUI/Windows App Runtime 相关错误，请同时安装 Microsoft Windows App Runtime。
 2. **下载与运行**：前往 [Releases 页面](https://github.com/tom613951/scrcpy-gui-winui3/releases) 下载最新的 `scrcpy-gui-winui3-portable.zip`，解包到本地目录，双击运行 `ScrcpyGui.exe`。
 3. **配置核心组件**：首次运行后，请点击主页的“系统设置”，指定您的 `scrcpy` 核心组件所在文件夹。如果您的 `adb.exe` 不在 `scrcpy` 目录下，您也可以在设置中单独指定自定义的 `adb` 路径。
+
+## 🛠️ 本地打包
+
+运行 `.\build.ps1` 只会生成 `scrcpy-gui-winui3-portable.zip`，不会自动发布 GitHub Release。如需发布，请显式运行：
+
+```powershell
+.\build.ps1 -CreateRelease -ReleaseNotes "更新内容：`n- 修复或新增内容"
+```
 
 ## 📝 许可证
 

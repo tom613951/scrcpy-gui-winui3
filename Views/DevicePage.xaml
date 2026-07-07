@@ -38,10 +38,10 @@
                         <TextBlock Text="未找到 scrcpy 核心文件！请前往“系统设置”配置 scrcpy 目录路径。" Foreground="#9F6A00" VerticalAlignment="Center" FontWeight="Medium" />
                     </StackPanel>
                 </Border>
-                <Button Command="{x:Bind ViewModel.KillAdbCommand}" ToolTipService.ToolTip="强制终止并重启 ADB 进程">
+                <Button Command="{x:Bind ViewModel.KillAdbCommand}" ToolTipService.ToolTip="重启 ADB 服务并重新检测设备">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <SymbolIcon Symbol="Cancel" />
-                        <TextBlock Text="终止 ADB 服务" />
+                        <SymbolIcon Symbol="Refresh" />
+                        <TextBlock Text="重启 ADB 服务" />
                     </StackPanel>
                 </Button>
                 
@@ -212,13 +212,26 @@
                                     <TextBlock Text="启动投屏" />
                                 </StackPanel>
                             </Button>
+                            <Button Command="{x:Bind ViewModel.StopMirroringCommand}" ToolTipService.ToolTip="停止当前 scrcpy 进程">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <SymbolIcon Symbol="Stop" />
+                                    <TextBlock Text="停止" />
+                                </StackPanel>
+                            </Button>
                             <Button Command="{x:Bind ViewModel.ClearLogCommand}" ToolTipService.ToolTip="清空控制台">
                                 <SymbolIcon Symbol="Clear" />
                             </Button>
                         </StackPanel>
                     </Grid>
 
-                    <ScrollViewer Grid.Row="1" Background="Black" CornerRadius="4" Padding="12" Margin="0,0,0,12">
+                    <ScrollViewer x:Name="LogScrollViewer"
+                                  Grid.Row="1"
+                                  Background="Black"
+                                  CornerRadius="4"
+                                  Padding="12"
+                                  Margin="0,0,0,12"
+                                  VerticalScrollBarVisibility="Hidden"
+                                  HorizontalScrollBarVisibility="Disabled">
                         <TextBlock Text="{x:Bind ViewModel.LogOutput, Mode=OneWay}" 
                                    FontFamily="Consolas" 
                                    FontSize="12" 

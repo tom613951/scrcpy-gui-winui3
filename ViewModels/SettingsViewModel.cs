@@ -1,3 +1,4 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ScrcpyGui.Models;
 using ScrcpyGui.Services;
@@ -354,6 +355,21 @@ namespace ScrcpyGui.ViewModels
                 if (Settings.CameraTorch != value)
                 {
                     Settings.CameraTorch = value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        public double CameraZoom
+        {
+            get => Settings.CameraZoom;
+            set
+            {
+                var normalized = double.IsNaN(value) || value <= 0 ? 1.0 : Math.Round(value, 2);
+                if (Math.Abs(Settings.CameraZoom - normalized) > 0.001)
+                {
+                    Settings.CameraZoom = normalized;
                     OnPropertyChanged();
                     _settingsService.SaveSettings();
                 }

@@ -15,36 +15,104 @@ namespace ScrcpyGui.ViewModels
         private readonly ScrcpyService _scrcpyService;
         private readonly SettingsService _settingsService;
         private readonly PathService _pathService;
+        private Process? _scrcpyProcess;
+        private const int MaxLogLength = 100_000;
 
-        [ObservableProperty]
         private ObservableCollection<AdbDevice> _devices = new();
-
-        [ObservableProperty]
         private AdbDevice? _selectedDevice;
-
-        [ObservableProperty]
         private bool _isRefreshing = false;
-
-        [ObservableProperty]
         private string _logOutput = string.Empty;
-
-        [ObservableProperty]
         private string _wirelessIpAddress = string.Empty;
-
-        [ObservableProperty]
         private double _wirelessPort = 5555;
-
-        [ObservableProperty]
         private string _pairingCode = string.Empty;
-
-        [ObservableProperty]
         private string _wirelessStatusMessage = string.Empty;
-
-        [ObservableProperty]
         private bool _isBinariesMissing = false;
-
-        [ObservableProperty]
+        private bool _isMirroring = false;
         private string _terminalInput = string.Empty;
+
+        public ObservableCollection<AdbDevice> Devices
+        {
+            get => _devices;
+            set => SetProperty(ref _devices, value);
+        }
+
+        public AdbDevice? SelectedDevice
+        {
+            get => _selectedDevice;
+            set
+            {
+                if (SetProperty(ref _selectedDevice, value))
+                {
+                    NotifyMirroringCommandStates();
+                }
+            }
+        }
+
+        public bool IsRefreshing
+        {
+            get => _isRefreshing;
+            set => SetProperty(ref _isRefreshing, value);
+        }
+
+        public string LogOutput
+        {
+            get => _logOutput;
+            set => SetProperty(ref _logOutput, value);
+        }
+
+        public string WirelessIpAddress
+        {
+            get => _wirelessIpAddress;
+            set => SetProperty(ref _wirelessIpAddress, value);
+        }
+
+        public double WirelessPort
+        {
+            get => _wirelessPort;
+            set => SetProperty(ref _wirelessPort, value);
+        }
+
+        public string PairingCode
+        {
+            get => _pairingCode;
+            set => SetProperty(ref _pairingCode, value);
+        }
+
+        public string WirelessStatusMessage
+        {
+            get => _wirelessStatusMessage;
+            set => SetProperty(ref _wirelessStatusMessage, value);
+        }
+
+        public bool IsBinariesMissing
+        {
+            get => _isBinariesMissing;
+            set
+            {
+                if (SetProperty(ref _isBinariesMissing, value))
+                {
+                    NotifyMirroringCommandStates();
+                }
+            }
+        }
+
+        public bool IsMirroring
+        {
+            get => _isMirroring;
+            set
+            {
+                if (SetProperty(ref _isMirroring, value))
+                {
+                    NotifyMirroringCommandStates();
+                }
+            }
+        }
+
+        public string TerminalInput
+        {
+            get => _terminalInput;
+            set => SetProperty(ref _terminalInput, value);
+        }
 
         public IAsyncRelayCommand RefreshDevicesCommand { get; }
         public IAsyncRelayCommand StartMirroringCommand { get; }
@@ -53,6 +121,7 @@ namespace ScrcpyGui.ViewModels
         public IRelayCommand ClearLogCommand { get; }
         public IAsyncRelayCommand KillAdbCommand { get; }
         public IAsyncRelayCommand RunTerminalCommand { get; }
+        public IRelayCommand StopMirroringCommand { get; }
 
         public DeviceViewModel(
             AdbService adbService, 
@@ -66,7 +135,8 @@ namespace ScrcpyGui.ViewModels
             _pathService = pathService;
 
             RefreshDevicesCommand = new AsyncRelayCommand(RefreshDevicesAsync);
-            StartMirroringCommand = new AsyncRelayCommand(StartMirroringAsync, () => SelectedDevice != null && !IsBinariesMissing);
+            StartMirroringCommand = new AsyncRelayCommand(StartMirroringAsync, CanStartMirroring);
+            StopMirroringCommand = new RelayCommand(StopMirroring, () => IsMirroring);
             WirelessConnectCommand = new AsyncRelayCommand(WirelessConnectAsync);
             WirelessPairCommand = new AsyncRelayCommand(WirelessPairAsync);
             ClearLogCommand = new RelayCommand(() => LogOutput = string.Empty);
@@ -83,7 +153,7 @@ namespace ScrcpyGui.ViewModels
         public void CheckBinaries()
         {
             IsBinariesMissing = !_pathService.BinariesExist;
-            StartMirroringCommand.NotifyCanExecuteChanged();
+            NotifyMirroringCommandStates();
         }
 
         private async Task RefreshDevicesAsync()
@@ -95,6 +165,12 @@ namespace ScrcpyGui.ViewModels
             {
                 Devices.Clear();
                 var list = await _adbService.GetDevicesAsync();
+                if (list.Count == 0)
+                {
+                    await Task.Delay(700);
+                    list = await _adbService.GetDevicesAsync();
+                }
+
                 foreach (var device in list)
                 {
                     Devices.Add(device);
@@ -103,6 +179,10 @@ namespace ScrcpyGui.ViewModels
                 if (Devices.Count > 0)
                 {
                     SelectedDevice = Devices[0];
+                }
+                else
+                {
+                    SelectedDevice = null;
                 }
             }
             catch (Exception ex)
@@ -117,12 +197,12 @@ namespace ScrcpyGui.ViewModels
 
         private async Task StartMirroringAsync()
         {
-            if (SelectedDevice == null) return;
+            if (!CanStartMirroring()) return;
 
             AppendLog("----------------------------------------");
-            AppendLog($"正在启动设备投屏: {SelectedDevice.Model}");
+            AppendLog($"正在启动设备投屏: {SelectedDevice!.Model}");
             
-            await _scrcpyService.StartMirroringAsync(
+            var process = await _scrcpyService.StartMirroringAsync(
                 SelectedDevice,
                 _settingsService.Settings,
                 output =>
@@ -138,9 +218,60 @@ namespace ScrcpyGui.ViewModels
                     App.MainWindowInstance?.DispatcherQueue.TryEnqueue(() =>
                     {
                         AppendLog($"scrcpy 进程已退出，退出代码: {exitCode}");
+                        ClearMirroringProcess();
                     });
                 }
             );
+
+            if (process != null)
+            {
+                _scrcpyProcess = process;
+                IsMirroring = true;
+            }
+        }
+
+        private bool CanStartMirroring()
+        {
+            return SelectedDevice?.IsAuthorized == true && !IsBinariesMissing && !IsMirroring;
+        }
+
+        private void StopMirroring()
+        {
+            var process = _scrcpyProcess;
+            if (process == null)
+            {
+                ClearMirroringProcess();
+                return;
+            }
+
+            try
+            {
+                if (process.HasExited)
+                {
+                    ClearMirroringProcess();
+                    return;
+                }
+
+                AppendLog("正在停止 scrcpy 进程...");
+                process.Kill(entireProcessTree: true);
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"停止 scrcpy 失败: {ex.Message}");
+                ClearMirroringProcess();
+            }
+        }
+
+        public void Shutdown()
+        {
+            StopMirroring();
+        }
+
+        private void ClearMirroringProcess()
+        {
+            _scrcpyProcess?.Dispose();
+            _scrcpyProcess = null;
+            IsMirroring = false;
         }
 
         private async Task WirelessConnectAsync()
@@ -152,7 +283,12 @@ namespace ScrcpyGui.ViewModels
             }
 
             WirelessStatusMessage = "正在连接...";
-            var result = await _adbService.ConnectWirelessAsync(WirelessIpAddress, (int)WirelessPort);
+            if (!TryGetWirelessPort(out var port))
+            {
+                return;
+            }
+
+            var result = await _adbService.ConnectWirelessAsync(WirelessIpAddress.Trim(), port);
             WirelessStatusMessage = result;
             
             await RefreshDevicesAsync();
@@ -167,8 +303,27 @@ namespace ScrcpyGui.ViewModels
             }
 
             WirelessStatusMessage = "正在配对...";
-            var result = await _adbService.PairWirelessAsync(WirelessIpAddress, (int)WirelessPort, PairingCode);
+            if (!TryGetWirelessPort(out var port))
+            {
+                return;
+            }
+
+            var result = await _adbService.PairWirelessAsync(WirelessIpAddress.Trim(), port, PairingCode.Trim());
             WirelessStatusMessage = result;
+        }
+
+        private bool TryGetWirelessPort(out int port)
+        {
+            port = 0;
+
+            if (double.IsNaN(WirelessPort) || WirelessPort < 1 || WirelessPort > 65535)
+            {
+                WirelessStatusMessage = "请输入 1-65535 之间的端口";
+                return false;
+            }
+
+            port = (int)WirelessPort;
+            return true;
         }
 
         public async Task PushFileOrInstallApkAsync(string filePath)
@@ -203,19 +358,38 @@ namespace ScrcpyGui.ViewModels
         private async Task KillAdbAsync()
         {
             IsRefreshing = true;
-            AppendLog("正在终止 ADB 服务...");
-            var result = await _adbService.KillServerAsync();
-            AppendLog($"ADB 服务已终止。{result}");
-            
-            // Wait a moment and refresh
-            await Task.Delay(500);
+            AppendLog("正在重启 ADB 服务...");
+
+            try
+            {
+                await _adbService.StopServerAsync();
+                AppendLog("ADB 服务已停止。");
+                await Task.Delay(1200);
+
+                var startResult = await _adbService.StartServerAsync();
+                if (!string.IsNullOrWhiteSpace(startResult))
+                {
+                    AppendLog(startResult);
+                }
+                else
+                {
+                    AppendLog("ADB 服务已启动。");
+                }
+
+                await Task.Delay(1500);
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
+
             await RefreshDevicesAsync();
         }
 
-        private async Task RunTerminalCommandAsync()
+        private Task RunTerminalCommandAsync()
         {
             var command = TerminalInput?.Trim();
-            if (string.IsNullOrEmpty(command)) return;
+            if (string.IsNullOrEmpty(command)) return Task.CompletedTask;
 
             // Clear input
             TerminalInput = string.Empty;
@@ -224,18 +398,22 @@ namespace ScrcpyGui.ViewModels
 
             try
             {
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    WorkingDirectory = System.IO.Directory.Exists(_pathService.ScrcpyDirectory) ? _pathService.ScrcpyDirectory : AppDomain.CurrentDomain.BaseDirectory,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                startInfo.ArgumentList.Add("-NoProfile");
+                startInfo.ArgumentList.Add("-Command");
+                startInfo.ArgumentList.Add(command);
+
                 var process = new Process
                 {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "powershell.exe",
-                        Arguments = $"-NoProfile -Command \"{command.Replace("\"", "\\\"")}\"",
-                        WorkingDirectory = System.IO.Directory.Exists(_pathService.ScrcpyDirectory) ? _pathService.ScrcpyDirectory : AppDomain.CurrentDomain.BaseDirectory,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    },
+                    StartInfo = startInfo,
                     EnableRaisingEvents = true
                 };
 
@@ -258,21 +436,54 @@ namespace ScrcpyGui.ViewModels
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
+                _ = MonitorTerminalProcessAsync(process);
             }
             catch (Exception ex)
             {
                 AppendLog($"执行命令失败: {ex.Message}");
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private async Task MonitorTerminalProcessAsync(Process process)
+        {
+            try
+            {
+                await process.WaitForExitAsync();
+                var exitCode = process.ExitCode;
+                App.MainWindowInstance?.DispatcherQueue.TryEnqueue(() =>
+                {
+                    AppendLog($"命令已退出，退出代码: {exitCode}");
+                });
+            }
+            catch (Exception ex)
+            {
+                App.MainWindowInstance?.DispatcherQueue.TryEnqueue(() =>
+                {
+                    AppendLog($"命令状态监控失败: {ex.Message}");
+                });
+            }
+            finally
+            {
+                process.Dispose();
             }
         }
 
         private void AppendLog(string message)
         {
             LogOutput += $"[{DateTime.Now:HH:mm:ss}] {message}\n";
+            if (LogOutput.Length > MaxLogLength)
+            {
+                LogOutput = LogOutput[^MaxLogLength..];
+            }
         }
 
-        partial void OnSelectedDeviceChanged(AdbDevice? value)
+        private void NotifyMirroringCommandStates()
         {
             StartMirroringCommand.NotifyCanExecuteChanged();
+            StopMirroringCommand.NotifyCanExecuteChanged();
         }
+
     }
 }

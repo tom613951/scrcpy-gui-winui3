@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace ScrcpyGui.Models
 {
@@ -122,6 +123,9 @@ namespace ScrcpyGui.Models
                     
                 if (CameraTorch)
                     args.Append("--camera-torch ");
+
+                if (CameraZoom > 0 && Math.Abs(CameraZoom - 1.0) > 0.001)
+                    args.Append($"--camera-zoom={CameraZoom.ToString("0.###", CultureInfo.InvariantCulture)} ");
             }
             else if (SessionMode == "desktop")
             {
@@ -148,6 +152,13 @@ namespace ScrcpyGui.Models
                         args.Append("--new-display ");
                     }
                 }
+
+                if (FlexDisplay)
+                    args.Append("--flex-display ");
+
+                var backgroundColor = BackgroundColor.Trim();
+                if (IsValidHexColor(backgroundColor))
+                    args.Append($"--background-color={backgroundColor} ");
             }
 
             // For Mirror mode Input enhancements
@@ -165,6 +176,31 @@ namespace ScrcpyGui.Models
             }
 
             return args.ToString().Trim();
+        }
+
+        private static bool IsValidHexColor(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
+
+            var start = value[0] == '#' ? 1 : 0;
+            var length = value.Length - start;
+            if (length != 3 && length != 6)
+            {
+                return false;
+            }
+
+            for (var i = start; i < value.Length; i++)
+            {
+                if (!Uri.IsHexDigit(value[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

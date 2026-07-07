@@ -58,6 +58,7 @@
                                 <TextBox Header="Camera ID" Text="{x:Bind ViewModel.CameraId, Mode=TwoWay}" PlaceholderText="留空则自动选择" />
                                 <TextBox Header="视频编码器 (Codec)" Text="{x:Bind ViewModel.Codec, Mode=TwoWay}" PlaceholderText="例如 h264, h265, av1" />
                                 <TextBox Header="相机画面比例 (Aspect Ratio)" Text="{x:Bind ViewModel.CameraAr, Mode=TwoWay}" PlaceholderText="例如 16:9, 4:3" />
+                                <NumberBox Header="相机变焦 (Zoom)" Value="{x:Bind ViewModel.CameraZoom, Mode=TwoWay}" Minimum="1" SmallChange="0.1" LargeChange="0.5" SpinButtonPlacementMode="Inline" />
                                 <ToggleSwitch Header="开启闪光灯 (Torch)" IsOn="{x:Bind ViewModel.CameraTorch, Mode=TwoWay}" />
                             </StackPanel>
                         </Border>

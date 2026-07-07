@@ -2,6 +2,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using ScrcpyGui.Services;
 using ScrcpyGui.ViewModels;
 
 namespace ScrcpyGui.Views
@@ -21,7 +22,7 @@ namespace ScrcpyGui.Views
             {
                 try
                 {
-                    System.IO.File.WriteAllText(@"C:\Users\26503\Documents\antigravity\crash.log", ex.ToString());
+                    PathService.WriteCrashLog(ex.ToString());
                 }
                 catch { }
                 throw;
