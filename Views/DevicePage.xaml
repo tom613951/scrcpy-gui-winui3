@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:ScrcpyGui.Models"
+    xmlns:viewmodels="using:ScrcpyGui.ViewModels"
     mc:Ignorable="d"
     Background="Transparent"
     AllowDrop="True"
@@ -195,63 +196,132 @@
             </Grid>
 
             <!-- Right Column: ADB & Scrcpy Terminal log output panel -->
-            <Border Grid.Column="1" CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+            <Pivot Grid.Column="1">
+                <PivotItem Header="进程控制台">
+                    <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
 
-                    <Grid Grid.Row="0" Margin="0,0,0,8">
-                        <TextBlock Text="scrcpy 进程控制台日志" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center" />
-                        <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
-                            <Button Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.StartMirroringCommand}">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <SymbolIcon Symbol="Play" />
-                                    <TextBlock Text="启动投屏" />
+                            <Grid Grid.Row="0" Margin="0,0,0,8">
+                                <TextBlock Text="scrcpy 进程控制台日志" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+                                    <Button Style="{ThemeResource AccentButtonStyle}" Command="{x:Bind ViewModel.StartMirroringCommand}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <SymbolIcon Symbol="Play" />
+                                            <TextBlock Text="启动投屏" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Command="{x:Bind ViewModel.StopMirroringCommand}" ToolTipService.ToolTip="停止当前 scrcpy 进程">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <SymbolIcon Symbol="Stop" />
+                                            <TextBlock Text="停止" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Command="{x:Bind ViewModel.ClearLogCommand}" ToolTipService.ToolTip="清空控制台">
+                                        <SymbolIcon Symbol="Clear" />
+                                    </Button>
                                 </StackPanel>
-                            </Button>
-                            <Button Command="{x:Bind ViewModel.StopMirroringCommand}" ToolTipService.ToolTip="停止当前 scrcpy 进程">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <SymbolIcon Symbol="Stop" />
-                                    <TextBlock Text="停止" />
-                                </StackPanel>
-                            </Button>
-                            <Button Command="{x:Bind ViewModel.ClearLogCommand}" ToolTipService.ToolTip="清空控制台">
-                                <SymbolIcon Symbol="Clear" />
-                            </Button>
-                        </StackPanel>
-                    </Grid>
+                            </Grid>
 
-                    <ScrollViewer x:Name="LogScrollViewer"
-                                  Grid.Row="1"
-                                  Background="Black"
-                                  CornerRadius="4"
-                                  Padding="12"
-                                  Margin="0,0,0,12"
-                                  VerticalScrollBarVisibility="Hidden"
-                                  HorizontalScrollBarVisibility="Disabled">
-                        <TextBlock Text="{x:Bind ViewModel.LogOutput, Mode=OneWay}" 
-                                   FontFamily="Consolas" 
-                                   FontSize="12" 
-                                   Foreground="LightGray" 
-                                   TextWrapping="Wrap"
-                                   IsTextSelectionEnabled="True" />
-                    </ScrollViewer>
+                            <ScrollViewer x:Name="LogScrollViewer"
+                                          Grid.Row="1"
+                                          Background="Black"
+                                          CornerRadius="4"
+                                          Padding="12"
+                                          Margin="0,0,0,12"
+                                          VerticalScrollBarVisibility="Hidden"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <TextBlock Text="{x:Bind ViewModel.LogOutput, Mode=OneWay}" 
+                                           FontFamily="Consolas" 
+                                           FontSize="12" 
+                                           Foreground="LightGray" 
+                                           TextWrapping="Wrap"
+                                           IsTextSelectionEnabled="True" />
+                            </ScrollViewer>
 
-                    <Grid Grid.Row="2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBox Grid.Column="0" Text="{x:Bind ViewModel.TerminalInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="输入终端命令并按 Enter 执行 (例如 .\scrcpy.exe --list-cameras)" KeyDown="TerminalInput_KeyDown" FontFamily="Consolas" />
-                        <Button Grid.Column="1" Command="{x:Bind ViewModel.RunTerminalCommand}" Margin="12,0,0,0" Style="{ThemeResource AccentButtonStyle}">
-                            <SymbolIcon Symbol="Send" />
-                        </Button>
-                    </Grid>
-                </Grid>
-            </Border>
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Text="{x:Bind ViewModel.TerminalInput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="输入终端命令并按 Enter 执行 (例如 .\scrcpy.exe --list-cameras)" KeyDown="TerminalInput_KeyDown" FontFamily="Consolas" />
+                                <Button Grid.Column="1" Command="{x:Bind ViewModel.RunTerminalCommand}" Margin="12,0,0,0" Style="{ThemeResource AccentButtonStyle}">
+                                    <SymbolIcon Symbol="Send" />
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </PivotItem>
+
+                <PivotItem Header="AI Copilot">
+                    <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            
+                            <!-- AI Header -->
+                            <TextBlock Grid.Row="0" Text="多模态设备控制助手 (AI Agent)" Style="{ThemeResource BodyStrongTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,0,8" />
+                            
+                            <Grid Grid.Row="1" Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Chat History -->
+                                <ListView Grid.Column="0" ItemsSource="{x:Bind ViewModel.AiChatHistory, Mode=OneWay}" Background="Transparent" SelectionMode="None" Margin="0,0,12,0">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate x:DataType="viewmodels:UiChatMessage">
+                                            <Border CornerRadius="8" Padding="12" Margin="0,4,0,4"
+                                                    Background="{ThemeResource LayerOnAccentAcrylicFillColorDefaultBrush}"
+                                                    HorizontalAlignment="Left">
+                                                <StackPanel Spacing="4">
+                                                    <TextBlock Text="{x:Bind Role}" FontWeight="Bold" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                    <TextBlock Text="{x:Bind Text}" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+
+                                <!-- AI Execution Log Console -->
+                                <Border Grid.Column="1" CornerRadius="4" Background="Black" Padding="12">
+                                    <Grid>
+                                        <TextBlock Text="Agent 执行日志" Foreground="LightGray" FontWeight="Bold" FontSize="12" VerticalAlignment="Top" Margin="0,0,0,8" />
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,24,0,0">
+                                            <TextBlock Text="{x:Bind ViewModel.AiLogOutput, Mode=OneWay}"
+                                                       FontFamily="Consolas"
+                                                       FontSize="12"
+                                                       Foreground="LightGreen"
+                                                       TextWrapping="Wrap"
+                                                       IsTextSelectionEnabled="True" />
+                                        </ScrollViewer>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                            
+                            <!-- Input Box -->
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Text="{x:Bind ViewModel.AiInputMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="询问设备状态或输入指令..." IsEnabled="{x:Bind ViewModel.IsNotAiThinking, Mode=OneWay}" KeyDown="AiInput_KeyDown" />
+                                <Button Grid.Column="1" Command="{x:Bind ViewModel.SendToAiCommand}" Margin="12,0,0,0" Style="{ThemeResource AccentButtonStyle}" IsEnabled="{x:Bind ViewModel.IsNotAiThinking, Mode=OneWay}">
+                                    <SymbolIcon Symbol="Send" />
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </PivotItem>
+            </Pivot>
         </Grid>
     </Grid>
 </Page>

@@ -114,6 +114,44 @@ namespace ScrcpyGui.ViewModels
             set => SetProperty(ref _terminalInput, value);
         }
 
+        // AI Feature Properties
+        private ObservableCollection<UiChatMessage> _aiChatHistory = new();
+        private string _aiInputMessage = string.Empty;
+        private string _aiLogOutput = string.Empty;
+        private bool _isAiThinking = false;
+
+        public ObservableCollection<UiChatMessage> AiChatHistory
+        {
+            get => _aiChatHistory;
+            set => SetProperty(ref _aiChatHistory, value);
+        }
+
+        public string AiInputMessage
+        {
+            get => _aiInputMessage;
+            set => SetProperty(ref _aiInputMessage, value);
+        }
+
+        public string AiLogOutput
+        {
+            get => _aiLogOutput;
+            set => SetProperty(ref _aiLogOutput, value);
+        }
+
+        public bool IsAiThinking
+        {
+            get => _isAiThinking;
+            set
+            {
+                if (SetProperty(ref _isAiThinking, value))
+                {
+                    OnPropertyChanged(nameof(IsNotAiThinking));
+                }
+            }
+        }
+
+        public bool IsNotAiThinking => !IsAiThinking;
+
         public IAsyncRelayCommand RefreshDevicesCommand { get; }
         public IAsyncRelayCommand StartMirroringCommand { get; }
         public IAsyncRelayCommand WirelessConnectCommand { get; }
@@ -122,17 +160,22 @@ namespace ScrcpyGui.ViewModels
         public IAsyncRelayCommand KillAdbCommand { get; }
         public IAsyncRelayCommand RunTerminalCommand { get; }
         public IRelayCommand StopMirroringCommand { get; }
+        public IAsyncRelayCommand SendToAiCommand { get; }
+
+        private readonly AiService _aiService;
 
         public DeviceViewModel(
             AdbService adbService, 
             ScrcpyService scrcpyService, 
             SettingsService settingsService,
-            PathService pathService)
+            PathService pathService,
+            AiService aiService)
         {
             _adbService = adbService;
             _scrcpyService = scrcpyService;
             _settingsService = settingsService;
             _pathService = pathService;
+            _aiService = aiService;
 
             RefreshDevicesCommand = new AsyncRelayCommand(RefreshDevicesAsync);
             StartMirroringCommand = new AsyncRelayCommand(StartMirroringAsync, CanStartMirroring);
@@ -142,6 +185,7 @@ namespace ScrcpyGui.ViewModels
             ClearLogCommand = new RelayCommand(() => LogOutput = string.Empty);
             KillAdbCommand = new AsyncRelayCommand(KillAdbAsync);
             RunTerminalCommand = new AsyncRelayCommand(RunTerminalCommandAsync);
+            SendToAiCommand = new AsyncRelayCommand(SendToAiAsync);
 
             // Initial verification of binaries
             CheckBinaries();
@@ -483,6 +527,137 @@ namespace ScrcpyGui.ViewModels
         {
             StartMirroringCommand.NotifyCanExecuteChanged();
             StopMirroringCommand.NotifyCanExecuteChanged();
+        }
+
+        private void AppendAiLog(string message)
+        {
+            App.MainWindowInstance?.DispatcherQueue.TryEnqueue(() => 
+            {
+                AiLogOutput += $"[{DateTime.Now:HH:mm:ss}] {message}\n";
+            });
+        }
+
+        private async Task ExecuteRpaActionsAsync(System.Collections.Generic.List<RpaAction> actions)
+        {
+            if (SelectedDevice == null) return;
+            
+            var res = await _adbService.GetScreenResolutionAsync(SelectedDevice.Serial);
+            double scaleX = res.HasValue ? res.Value.width / 1000.0 : 1.0;
+            double scaleY = res.HasValue ? res.Value.height / 1000.0 : 1.0;
+
+            if (res.HasValue)
+            {
+                AppendAiLog($"设备分辨率：{res.Value.width}x{res.Value.height}。缩放因子 X:{scaleX}, Y:{scaleY}");
+            }
+            else
+            {
+                AppendAiLog("获取设备分辨率失败，将使用默认坐标(1000x1000比例)。");
+            }
+
+            foreach (var action in actions)
+            {
+                AppendAiLog($"正在执行: {action.Action} {action.Position?.X},{action.Position?.Y} '{action.Text}'");
+
+                string? adbCommand = null;
+                switch (action.Action.ToLower())
+                {
+                    case "tap":
+                        if (action.Position != null)
+                        {
+                            int x = (int)(action.Position.X * scaleX);
+                            int y = (int)(action.Position.Y * scaleY);
+                            adbCommand = $"-s {SelectedDevice.Serial} shell input tap {x} {y}";
+                        }
+                        break;
+                    case "swipe":
+                        if (action.Position != null && action.TargetPosition != null)
+                        {
+                            int x1 = (int)(action.Position.X * scaleX);
+                            int y1 = (int)(action.Position.Y * scaleY);
+                            int x2 = (int)(action.TargetPosition.X * scaleX);
+                            int y2 = (int)(action.TargetPosition.Y * scaleY);
+                            adbCommand = $"-s {SelectedDevice.Serial} shell input swipe {x1} {y1} {x2} {y2}";
+                        }
+                        break;
+                    case "input_text":
+                        if (!string.IsNullOrEmpty(action.Text))
+                        {
+                            string safeText = action.Text.Replace(" ", "%s");
+                            adbCommand = $"-s {SelectedDevice.Serial} shell input text '{safeText}'";
+                        }
+                        break;
+                    case "keyevent":
+                        if (!string.IsNullOrEmpty(action.Text))
+                        {
+                            adbCommand = $"-s {SelectedDevice.Serial} shell input keyevent {action.Text}";
+                        }
+                        break;
+                }
+
+                if (!string.IsNullOrEmpty(adbCommand))
+                {
+                    var executeResult = await _adbService.ExecuteCommandAsync(adbCommand, 5000);
+                    if (!string.IsNullOrWhiteSpace(executeResult))
+                    {
+                        AppendAiLog($"ADB 输出: {executeResult}");
+                    }
+                }
+                
+                await Task.Delay(1000);
+            }
+        }
+
+        private async Task SendToAiAsync()
+        {
+            if (string.IsNullOrWhiteSpace(AiInputMessage)) return;
+            if (SelectedDevice == null)
+            {
+                AiChatHistory.Add(new UiChatMessage { Role = "System", Text = "请先连接并选择一台设备。" });
+                return;
+            }
+
+            var userText = AiInputMessage;
+            AiInputMessage = string.Empty;
+            AiChatHistory.Add(new UiChatMessage { Role = "User", Text = userText });
+            IsAiThinking = true;
+
+            try
+            {
+                AppendAiLog("正在截取屏幕...");
+                var base64Image = await _adbService.CaptureScreenAsBase64Async(SelectedDevice.Serial);
+
+                if (string.IsNullOrEmpty(base64Image))
+                {
+                    AiChatHistory.Add(new UiChatMessage { Role = "System", Text = "截图失败，请确保设备在线。" });
+                    return;
+                }
+
+                AppendAiLog($"截图成功，请求 AI...");
+                var response = await _aiService.AnalyzeScreenAndPlanAsync(
+                    base64Image, 
+                    userText, 
+                    _settingsService.Settings.AiBaseUrl, 
+                    _settingsService.Settings.AiModelName,
+                    _settingsService.Settings.AiApiKey);
+
+                AiChatHistory.Add(new UiChatMessage { Role = "Agent", Text = response.Explanation });
+
+                if (response.Actions != null && response.Actions.Count > 0)
+                {
+                    AppendAiLog($"获取到 {response.Actions.Count} 个动作，开始执行...");
+                    await ExecuteRpaActionsAsync(response.Actions);
+                    AppendAiLog("动作执行完成。");
+                }
+            }
+            catch (Exception ex)
+            {
+                AiChatHistory.Add(new UiChatMessage { Role = "System", Text = $"AI 服务出错: {ex.Message}" });
+                AppendAiLog($"AI 请求异常: {ex.Message}\n{ex.StackTrace}");
+            }
+            finally
+            {
+                IsAiThinking = false;
+            }
         }
 
     }

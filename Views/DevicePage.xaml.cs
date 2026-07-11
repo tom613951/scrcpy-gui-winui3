@@ -102,5 +102,17 @@ namespace ScrcpyGui.Views
                 }
             }
         }
+
+        private void AiInput_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                if (ViewModel.SendToAiCommand.CanExecute(null))
+                {
+                    ViewModel.SendToAiCommand.Execute(null);
+                    e.Handled = true;
+                }
+            }
+        }
     }
 }

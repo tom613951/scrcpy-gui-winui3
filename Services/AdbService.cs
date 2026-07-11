@@ -25,6 +25,12 @@ namespace ScrcpyGui.Services
             return result.CombinedOutput;
         }
 
+        public async Task<string> ExecuteCommandAsync(string arguments, int timeoutMs = 10000)
+        {
+            var argsList = arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            return await RunAdbCommandAsync(timeoutMs, argsList);
+        }
+
         private async Task<AdbCommandResult> RunAdbCommandDetailedAsync(int timeoutMs, params string[] arguments)
         {
             if (!File.Exists(_pathService.AdbPath))
@@ -207,6 +213,64 @@ namespace ScrcpyGui.Services
                 || status.Equals("recovery", StringComparison.OrdinalIgnoreCase)
                 || status.Equals("sideload", StringComparison.OrdinalIgnoreCase)
                 || status.Equals("bootloader", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public async Task<string> CaptureScreenAsBase64Async(string serial)
+        {
+            if (!File.Exists(_pathService.AdbPath)) return string.Empty;
+
+            var tempPath = Path.Combine(Path.GetTempPath(), $"scrcpy_screencap_{Guid.NewGuid()}.png");
+            try
+            {
+                using var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = _pathService.AdbPath,
+                        Arguments = $"-s {serial} exec-out screencap -p",
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                };
+
+                process.Start();
+                using (var fs = new FileStream(tempPath, FileMode.Create, FileAccess.Write))
+                {
+                    await process.StandardOutput.BaseStream.CopyToAsync(fs);
+                }
+                await process.WaitForExitAsync();
+
+                var bytes = await File.ReadAllBytesAsync(tempPath);
+                return Convert.ToBase64String(bytes);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error capturing screen: {ex.Message}");
+            }
+            finally
+            {
+                if (File.Exists(tempPath))
+                {
+                    try { File.Delete(tempPath); } catch { }
+                }
+            }
+            
+            return string.Empty;
+        }
+
+        public async Task<(int width, int height)?> GetScreenResolutionAsync(string serial)
+        {
+            var result = await RunAdbCommandDetailedAsync(5000, "-s", serial, "shell", "wm", "size");
+            var output = result.Stdout;
+            if (string.IsNullOrWhiteSpace(output)) return null;
+
+            var match = Regex.Match(output, @"size:\s*(\d+)x(\d+)", RegexOptions.IgnoreCase | RegexOptions.RightToLeft);
+            if (match.Success && int.TryParse(match.Groups[1].Value, out int width) && int.TryParse(match.Groups[2].Value, out int height))
+            {
+                return (width, height);
+            }
+            return null;
         }
 
         private sealed class AdbCommandResult

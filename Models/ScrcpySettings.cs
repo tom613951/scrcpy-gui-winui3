@@ -42,6 +42,11 @@ namespace ScrcpyGui.Models
         public bool FlexDisplay { get; set; } = false;
         public string BackgroundColor { get; set; } = string.Empty;
 
+        // AI Copilot Settings
+        public string AiBaseUrl { get; set; } = string.Empty;
+        public string AiApiKey { get; set; } = string.Empty;
+        public string AiModelName { get; set; } = string.Empty;
+
         public string GetArguments(string serial)
         {
             var args = new System.Text.StringBuilder();

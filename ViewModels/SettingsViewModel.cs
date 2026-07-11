@@ -450,5 +450,80 @@ namespace ScrcpyGui.ViewModels
                 }
             }
         }
+        // AI Settings
+        public string AiBaseUrl
+        {
+            get => Settings.AiBaseUrl;
+            set
+            {
+                if (Settings.AiBaseUrl != value)
+                {
+                    Settings.AiBaseUrl = value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        public string AiApiKey
+        {
+            get => Settings.AiApiKey;
+            set
+            {
+                if (Settings.AiApiKey != value)
+                {
+                    Settings.AiApiKey = value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        public string AiModelName
+        {
+            get => Settings.AiModelName;
+            set
+            {
+                if (Settings.AiModelName != value)
+                {
+                    Settings.AiModelName = value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        public class AiProviderOption
+        {
+            public string Name { get; set; } = string.Empty;
+            public string BaseUrl { get; set; } = string.Empty;
+        }
+
+        public System.Collections.ObjectModel.ObservableCollection<AiProviderOption> AiProviders { get; } = new()
+        {
+            new AiProviderOption { Name = "自定义 (Custom)", BaseUrl = "" },
+            new AiProviderOption { Name = "OpenAI", BaseUrl = "https://api.openai.com/v1" },
+            new AiProviderOption { Name = "OpenClaw", BaseUrl = "https://api.openclaw.ai/v1" },
+            new AiProviderOption { Name = "DeepSeek", BaseUrl = "https://api.deepseek.com/v1" },
+            new AiProviderOption { Name = "Anthropic", BaseUrl = "https://api.anthropic.com/v1" }
+        };
+
+        private AiProviderOption? _selectedAiProvider;
+        public AiProviderOption? SelectedAiProvider
+        {
+            get => _selectedAiProvider;
+            set
+            {
+                if (_selectedAiProvider != value)
+                {
+                    _selectedAiProvider = value;
+                    OnPropertyChanged();
+                    if (value != null && !string.IsNullOrEmpty(value.BaseUrl))
+                    {
+                        AiBaseUrl = value.BaseUrl;
+                    }
+                }
+            }
+        }
     }
 }
