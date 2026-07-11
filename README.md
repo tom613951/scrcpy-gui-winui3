@@ -5,7 +5,7 @@
 ## 🌟 项目特色
 
 - 🎨 **WinUI 3 风格界面**：沉浸式单页架构，采用 Windows 11 Fluent Design 原生卡片化布局。
-- 🤖 **多模态 AI Copilot**：内置 RPA 控制能力，可使用任意支持 Vision 的大模型（如 GPT-4o、OpenClaw、Claude-3.5-Sonnet），向它发送自然语言指令，它能截取设备屏幕并自主完成点击、滑动、输入等自动化操作！
+- 🤖 **多模态 AI Copilot**：内置 RPA 控制能力，可使用任意支持 Vision 的大模型，向它发送自然语言指令，它能截取设备屏幕并自主完成点击、滑动、输入等自动化操作！
 - ⚙️ **自定义核心路径**：轻量化体积（仅 30+MB），不再内置下载器，用户需自行前往系统设置指定 scrcpy 的安装路径。
 - 📱 **设备与无线连接**：支持 USB 和无线 ADB 连接管理，包含 ADB 服务重启、退出自动关闭 ADB 和 Android 11+ 无线配对助手。
 - 🎮 **三大投屏模式**：提供原生屏幕镜像、直接调用相机（Camera）和创建虚拟独立显示器（Desktop）。
@@ -27,11 +27,12 @@
 
 ## 🛠️ 本地打包
 
-运行 `.\build.ps1` 只会生成 `scrcpy-gui-winui3-portable.zip`，不会自动发布 GitHub Release。如需发布，请显式运行：
+由于不再依赖内置资源，可直接运行根目录下的构建脚本打包便携版：
 
 ```powershell
-.\build.ps1 -CreateRelease -ReleaseNotes "更新内容：`n- 修复或新增内容"
+.\build.ps1
 ```
+打包成功后，将在 `publish\portable` 目录下生成 `scrcpy-gui-winui3-portable.zip` 文件。
 
 ## 📝 许可证
 
