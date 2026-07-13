@@ -5,10 +5,8 @@ namespace ScrcpyGui.Services
 {
     public class PathService
     {
-        public static string AppDataDirectory => Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "ScrcpyGui"
-        );
+        // For a portable app, store settings in the same directory as the executable
+        public static string AppDataDirectory => AppDomain.CurrentDomain.BaseDirectory;
 
         public static string LogsDirectory => Path.Combine(AppDataDirectory, "logs");
 
