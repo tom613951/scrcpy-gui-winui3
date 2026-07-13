@@ -309,7 +309,7 @@
 
                             <TextBox Header="Base URL" Text="{x:Bind ViewModel.AiBaseUrl, Mode=TwoWay}" PlaceholderText="例如 https://api.openai.com/v1" />
                             <PasswordBox Header="API Key" Password="{x:Bind ViewModel.AiApiKey, Mode=TwoWay}" PlaceholderText="sk-..." />
-                            <TextBox Header="模型名称 (Model)" Text="{x:Bind ViewModel.AiModelName, Mode=TwoWay}" PlaceholderText="例如 gpt-4o 或 claude-3-5-sonnet-20240620" />
+                            <TextBox Header="模型名称 (Model)" Text="{x:Bind ViewModel.AiModelName, Mode=TwoWay}" PlaceholderText="例如 gpt-5.5 或 gemini-3.5-flash" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
