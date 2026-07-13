@@ -507,33 +507,6 @@ namespace ScrcpyGui.ViewModels
             }
         }
 
-        public class AiProviderOption
-        {
-            public string Name { get; set; } = string.Empty;
-            public string BaseUrl { get; set; } = string.Empty;
-        }
 
-        public System.Collections.ObjectModel.ObservableCollection<AiProviderOption> AiProviders { get; } = new()
-        {
-            new AiProviderOption { Name = "自定义 (Custom)", BaseUrl = "" }
-        };
-
-        private AiProviderOption? _selectedAiProvider;
-        public AiProviderOption? SelectedAiProvider
-        {
-            get => _selectedAiProvider;
-            set
-            {
-                if (_selectedAiProvider != value)
-                {
-                    _selectedAiProvider = value;
-                    OnPropertyChanged();
-                    if (value != null && !string.IsNullOrEmpty(value.BaseUrl))
-                    {
-                        AiBaseUrl = value.BaseUrl;
-                    }
-                }
-            }
-        }
     }
 }

@@ -16,6 +16,11 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # 2. 压缩成 ZIP
+Write-Host "正在清理敏感配置与缓存..." -ForegroundColor Cyan
+if (Test-Path "$publishDir\settings.json") {
+    Remove-Item "$publishDir\settings.json" -Force
+}
+
 Write-Host "正在压缩 ZIP 文件..." -ForegroundColor Cyan
 if (Test-Path $zipPath) {
     Remove-Item $zipPath -Force

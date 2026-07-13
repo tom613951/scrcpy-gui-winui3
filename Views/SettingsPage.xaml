@@ -307,8 +307,6 @@
                                 <TextBlock Text="用于驱动多模态 Android 代理，必须支持视觉（Vision）能力" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
 
-                            <ComboBox Header="服务商" ItemsSource="{x:Bind ViewModel.AiProviders}" SelectedItem="{x:Bind ViewModel.SelectedAiProvider, Mode=TwoWay}" DisplayMemberPath="Name" HorizontalAlignment="Stretch" />
-
                             <TextBox Header="Base URL" Text="{x:Bind ViewModel.AiBaseUrl, Mode=TwoWay}" PlaceholderText="例如 https://api.openai.com/v1" />
                             <PasswordBox Header="API Key" Password="{x:Bind ViewModel.AiApiKey, Mode=TwoWay}" PlaceholderText="sk-..." />
                             <TextBox Header="模型名称 (Model)" Text="{x:Bind ViewModel.AiModelName, Mode=TwoWay}" PlaceholderText="例如 gpt-4o 或 claude-3-5-sonnet-20240620" />
