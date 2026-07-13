@@ -17,6 +17,7 @@ namespace ScrcpyGui.Models
         public bool KeepOnTop { get; set; } = false;
         public bool Fullscreen { get; set; } = false;
         public string CustomArguments { get; set; } = string.Empty;
+        public bool IgnoreEncoderConstraints { get; set; } = false;
         
         public string CustomScrcpyPath { get; set; } = string.Empty;
         public string CustomAdbPath { get; set; } = string.Empty;
@@ -120,8 +121,6 @@ namespace ScrcpyGui.Models
                 if (!string.IsNullOrEmpty(CameraId))
                     args.Append($"--camera-id={CameraId} ");
                     
-                if (!string.IsNullOrEmpty(Codec))
-                    args.Append($"--video-codec={Codec} ");
                     
                 if (!string.IsNullOrEmpty(CameraAr) && CameraAr != "0")
                     args.Append($"--camera-ar={CameraAr} ");
@@ -173,6 +172,16 @@ namespace ScrcpyGui.Models
                     args.Append("--keyboard=uhid ");
                 if (HidMouse)
                     args.Append("--mouse=uhid ");
+            }
+
+            if (!string.IsNullOrEmpty(Codec))
+            {
+                args.Append($"--video-codec={Codec} ");
+            }
+
+            if (IgnoreEncoderConstraints)
+            {
+                args.Append("--ignore-video-encoder-constraints ");
             }
 
             if (!string.IsNullOrEmpty(CustomArguments))

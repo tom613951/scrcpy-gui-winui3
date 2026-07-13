@@ -56,7 +56,6 @@
                                 <TextBlock Text="相机模式专属配置" Style="{ThemeResource BodyStrongTextBlockStyle}" />
                                 
                                 <TextBox Header="Camera ID" Text="{x:Bind ViewModel.CameraId, Mode=TwoWay}" PlaceholderText="留空则自动选择" />
-                                <TextBox Header="视频编码器 (Codec)" Text="{x:Bind ViewModel.Codec, Mode=TwoWay}" PlaceholderText="例如 h264, h265, av1" />
                                 <TextBox Header="相机画面比例 (Aspect Ratio)" Text="{x:Bind ViewModel.CameraAr, Mode=TwoWay}" PlaceholderText="例如 16:9, 4:3" />
                                 <NumberBox Header="相机变焦 (Zoom)" Value="{x:Bind ViewModel.CameraZoom, Mode=TwoWay}" Minimum="1" SmallChange="0.1" LargeChange="0.5" SpinButtonPlacementMode="Inline" />
                                 <ToggleSwitch Header="开启闪光灯 (Torch)" IsOn="{x:Bind ViewModel.CameraTorch, Mode=TwoWay}" />
@@ -134,6 +133,37 @@
                             <Slider Grid.Column="1" Minimum="0" Maximum="120" StepFrequency="15" Value="{x:Bind ViewModel.MaxFps, Mode=TwoWay}" Header="{x:Bind GetMaxFpsHeader(ViewModel.MaxFps), Mode=OneWay}" />
                         </Grid>
                     </Border>
+
+
+                    <!-- Card: Codec -->
+                    <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="200" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="视频编码器 (Codec)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="可根据设备情况更改视频编码格式，例如输入 vp9 获得更好兼容性" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                            <TextBox Grid.Column="1" Text="{x:Bind ViewModel.Codec, Mode=TwoWay}" PlaceholderText="例如 h264, h265, av1, vp9" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Card: Ignore Encoder Constraints -->
+                    <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="忽略视频编码器约束" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="如果设备投屏频繁因分辨率或视频编码器限制报错，可尝试开启此选项" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.IgnoreEncoderConstraints, Mode=TwoWay}" OnContent="{x:Null}" OffContent="{x:Null}" HorizontalAlignment="Right" MinWidth="0" />
+                        </Grid>
+                    </Border>
                 </StackPanel>
 
                 <!-- Group 2: Android Stay Awake & Audio -->
@@ -151,7 +181,7 @@
                                 <TextBlock Text="禁用音频传输" Style="{ThemeResource BodyStrongTextBlockStyle}" />
                                 <TextBlock Text="关闭从安卓设备到电脑的音频同步传输（投屏时保持电脑静音）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
-                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.DisableAudio, Mode=TwoWay}" OnContent="" OffContent="" />
+                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.DisableAudio, Mode=TwoWay}" OnContent="{x:Null}" OffContent="{x:Null}" HorizontalAlignment="Right" MinWidth="0" />
                         </Grid>
                     </Border>
 
@@ -166,7 +196,7 @@
                                 <TextBlock Text="自动关闭设备屏幕" Style="{ThemeResource BodyStrongTextBlockStyle}" />
                                 <TextBlock Text="投屏启动后，自动关闭手机/平板的物理屏幕，以节省电量并防止烧屏" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
-                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.TurnScreenOff, Mode=TwoWay}" OnContent="" OffContent="" />
+                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.TurnScreenOff, Mode=TwoWay}" OnContent="{x:Null}" OffContent="{x:Null}" HorizontalAlignment="Right" MinWidth="0" />
                         </Grid>
                     </Border>
 
@@ -181,7 +211,7 @@
                                 <TextBlock Text="防止设备自动休眠" Style="{ThemeResource BodyStrongTextBlockStyle}" />
                                 <TextBlock Text="投屏时强制保持安卓设备为唤醒状态" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
-                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.StayAwake, Mode=TwoWay}" OnContent="" OffContent="" />
+                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.StayAwake, Mode=TwoWay}" OnContent="{x:Null}" OffContent="{x:Null}" HorizontalAlignment="Right" MinWidth="0" />
                         </Grid>
                     </Border>
                 </StackPanel>
@@ -201,7 +231,7 @@
                                 <TextBlock Text="UHID 物理键盘模拟 (HID Keyboard)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
                                 <TextBlock Text="使用 UHID 协议直连设备，跳过安卓输入法，支持系统级快捷键（需连接 USB）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
-                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.HidKeyboard, Mode=TwoWay}" OnContent="" OffContent="" />
+                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.HidKeyboard, Mode=TwoWay}" OnContent="{x:Null}" OffContent="{x:Null}" HorizontalAlignment="Right" MinWidth="0" />
                         </Grid>
                     </Border>
 
@@ -216,7 +246,7 @@
                                 <TextBlock Text="UHID 物理鼠标模拟 (HID Mouse)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
                                 <TextBlock Text="使用 UHID 协议直连设备，捕获鼠标原始移动事件，适合打游戏（需连接 USB）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
-                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.HidMouse, Mode=TwoWay}" OnContent="" OffContent="" />
+                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.HidMouse, Mode=TwoWay}" OnContent="{x:Null}" OffContent="{x:Null}" HorizontalAlignment="Right" MinWidth="0" />
                         </Grid>
                     </Border>
 
@@ -231,7 +261,7 @@
                                 <TextBlock Text="投屏窗口置顶" Style="{ThemeResource BodyStrongTextBlockStyle}" />
                                 <TextBlock Text="保持投屏画面窗口始终置于电脑其他窗口最前端" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
-                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.KeepOnTop, Mode=TwoWay}" OnContent="" OffContent="" />
+                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.KeepOnTop, Mode=TwoWay}" OnContent="{x:Null}" OffContent="{x:Null}" HorizontalAlignment="Right" MinWidth="0" />
                         </Grid>
                     </Border>
 
@@ -246,7 +276,7 @@
                                 <TextBlock Text="以全屏模式启动" Style="{ThemeResource BodyStrongTextBlockStyle}" />
                                 <TextBlock Text="投屏窗口启动时直接进入全屏状态" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
-                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.Fullscreen, Mode=TwoWay}" OnContent="" OffContent="" />
+                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.Fullscreen, Mode=TwoWay}" OnContent="{x:Null}" OffContent="{x:Null}" HorizontalAlignment="Right" MinWidth="0" />
                         </Grid>
                     </Border>
 
@@ -261,7 +291,7 @@
                                 <TextBlock Text="OTG 键鼠模式 (仅 HID)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
                                 <TextBlock Text="仅将电脑键鼠输入模拟为物理 USB 键鼠直连设备，不显示投屏画面（仅限 USB 连接）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
-                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.OtgMode, Mode=TwoWay}" OnContent="" OffContent="" />
+                            <ToggleSwitch Grid.Column="1" IsOn="{x:Bind ViewModel.OtgMode, Mode=TwoWay}" OnContent="{x:Null}" OffContent="{x:Null}" HorizontalAlignment="Right" MinWidth="0" />
                         </Grid>
                     </Border>
                 </StackPanel>

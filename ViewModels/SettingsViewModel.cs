@@ -493,6 +493,20 @@ namespace ScrcpyGui.ViewModels
             }
         }
 
+        public bool IgnoreEncoderConstraints
+        {
+            get => Settings.IgnoreEncoderConstraints;
+            set
+            {
+                if (Settings.IgnoreEncoderConstraints != value)
+                {
+                    Settings.IgnoreEncoderConstraints = value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
         public class AiProviderOption
         {
             public string Name { get; set; } = string.Empty;
@@ -501,11 +515,7 @@ namespace ScrcpyGui.ViewModels
 
         public System.Collections.ObjectModel.ObservableCollection<AiProviderOption> AiProviders { get; } = new()
         {
-            new AiProviderOption { Name = "自定义 (Custom)", BaseUrl = "" },
-            new AiProviderOption { Name = "OpenAI", BaseUrl = "https://api.openai.com/v1" },
-            new AiProviderOption { Name = "OpenClaw", BaseUrl = "https://api.openclaw.ai/v1" },
-            new AiProviderOption { Name = "DeepSeek", BaseUrl = "https://api.deepseek.com/v1" },
-            new AiProviderOption { Name = "Anthropic", BaseUrl = "https://api.anthropic.com/v1" }
+            new AiProviderOption { Name = "自定义 (Custom)", BaseUrl = "" }
         };
 
         private AiProviderOption? _selectedAiProvider;
