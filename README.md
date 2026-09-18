@@ -1,39 +1,40 @@
-# Scrcpy GUI (WinUI 3 版)
+# Scrcpy GUI (WinUI 3)
 
-这是一个使用 C# 和 WinUI 3 开发的现代 scrcpy 图形化控制面板。
+基于 C# 与 WinUI 3 开发的 scrcpy 图形化控制面板。
 
-## 🌟 项目特色
+## 功能特性
 
-- 🎨 **WinUI 3 风格界面**：沉浸式单页架构，采用 Windows 11 Fluent Design 原生卡片化布局。
-- 🤖 **多模态 AI Copilot**：内置 RPA 控制能力，可使用任意支持 Vision 的大模型，向它发送自然语言指令，它能截取设备屏幕并自主完成点击、滑动、输入等自动化操作！
-- ⚙️ **自定义核心路径**：轻量化体积（仅 30+MB），不再内置下载器，用户需自行前往系统设置指定 scrcpy 的安装路径。
-- 📱 **设备与无线连接**：支持 USB 和无线 ADB 连接管理，包含 ADB 服务重启、退出自动关闭 ADB 和 Android 11+ 无线配对助手。
-- 🎮 **三大投屏模式**：提供原生屏幕镜像、直接调用相机（Camera）和创建虚拟独立显示器（Desktop）。
-- ⌨️ **原生体验增强**：支持开启 UHID 模拟物理键盘和鼠标直通，提供低延迟电竞级游戏体验。
-- 📂 **拖拽传输支持**：拖入 APK 自动静默安装，拖入文件自动推送到 `/sdcard/Download`。
-- 🖥️ **参数配置与日志**：提供直观的比特率、分辨率和帧率设置，并内嵌实时控制台及完整的 ADB 终端操作面板。
+- **WinUI 3 界面**：采用 Windows 11 Fluent Design 卡片布局。
+- **多模态 AI 辅助控制**：支持接入具备视觉能力的多模态大模型，通过自然语言指令识别屏幕元素并执行点击、滑动与文本输入。
+- **自定义组件路径**：程序体积约为 30MB，不内置下载器，用户可在设置中指定现有的 scrcpy 与 adb 路径。
+- **设备与无线连接**：支持 USB 与无线 ADB 连接管理，提供服务重启、退出时关闭后台 ADB 以及 Android 11+ 无线配对。
+- **投屏模式**：支持屏幕镜像、相机画面调用（Camera）与虚拟副屏（Desktop）。
+- **外设输入直通**：支持 UHID 模拟物理键盘与鼠标直通。
+- **拖拽文件传输**：支持拖入 APK 自动安装，拖入常规文件推送至设备存储目录。
+- **参数配置与终端日志**：提供比特率、分辨率与帧率调节，内置日志控制台与 ADB 终端交互面板。
 
-## 🚀 快速开始
+## 快速开始
 
-1. **环境准备**：此精简版需在电脑上预先安装 [.NET 9 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)。如果程序启动时报 WinUI/Windows App Runtime 相关错误，请同时安装 Microsoft Windows App Runtime。
-2. **下载与运行**：前往 [Releases 页面](https://github.com/tom613951/scrcpy-gui-winui3/releases) 下载最新的 `scrcpy-gui-winui3-portable.zip`，解包到本地目录，双击运行 `ScrcpyGui.exe`。
-3. **配置核心组件**：首次运行后，请点击主页的“系统设置”，指定您的 `scrcpy` 核心组件所在文件夹。如果您的 `adb.exe` 不在 `scrcpy` 目录下，您也可以在设置中单独指定自定义的 `adb` 路径。
+1. **运行环境**：需要安装 [.NET 9 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)。如遇运行库错误，请一并安装 Microsoft Windows App Runtime。
+2. **下载运行**：从 [Releases 页面](https://github.com/tom613951/scrcpy-gui-winui3/releases) 下载 scrcpy-gui-winui3-portable.zip，解压后运行 ScrcpyGui.exe。
+3. **配置路径**：首次启动进入“系统设置”，指定本地 scrcpy 所在目录；如 db.exe 位于独立路径，可单独指定。
 
-## 💡 使用提示
+## 使用提示
 
-- 程序退出时会自动停止当前配置路径下的 ADB 服务，并清理同一路径残留的 `adb.exe` 进程。
-- 如果设备列表异常，可点击“重启 ADB 服务”重新初始化 ADB 并刷新设备列表。
-- 如果电脑上安装了多个 ADB，建议在“系统设置”中明确指定要使用的 `adb.exe`，避免不同工具抢占 ADB 服务端口。
+- 程序退出时会自动终止指定配置路径下的 ADB 进程，避免后台残留。
+- 设备列表刷新异常时，可点击“重启 ADB 服务”重新初始化连接。
+- 多工具共存时建议在设置中显式指定 ADB 路径，避免端口冲突。
 
-## 🛠️ 本地打包
+## 本地打包
 
-由于不再依赖内置资源，可直接运行根目录下的构建脚本打包便携版：
+运行根目录打包脚本：
 
-```powershell
+`powershell
 .\build.ps1
-```
-打包成功后，将在 `publish\portable` 目录下生成 `scrcpy-gui-winui3-portable.zip` 文件。
+`
 
-## 📝 许可证
+构建完成后将在 publish\portable 目录下生成 scrcpy-gui-winui3-portable.zip。
 
-本项目基于 [MIT License](LICENSE) 开源。
+## 开源协议
+
+本项目采用 [MIT](LICENSE) 协议开源。
