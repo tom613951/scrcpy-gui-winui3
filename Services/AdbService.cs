@@ -27,8 +27,67 @@ namespace ScrcpyGui.Services
 
         public async Task<string> ExecuteCommandAsync(string arguments, int timeoutMs = 10000)
         {
-            var argsList = arguments.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var argsList = ParseCommandLine(arguments);
             return await RunAdbCommandAsync(timeoutMs, argsList);
+        }
+
+        public static string[] ParseCommandLine(string commandLine)
+        {
+            if (string.IsNullOrWhiteSpace(commandLine)) return Array.Empty<string>();
+
+            var list = new List<string>();
+            var current = new StringBuilder();
+            bool inSingleQuote = false;
+            bool inDoubleQuote = false;
+            bool escaping = false;
+
+            for (int i = 0; i < commandLine.Length; i++)
+            {
+                char c = commandLine[i];
+                if (escaping)
+                {
+                    current.Append(c);
+                    escaping = false;
+                    continue;
+                }
+
+                if (c == '\\' && !inSingleQuote)
+                {
+                    escaping = true;
+                    continue;
+                }
+
+                if (c == '\'' && !inDoubleQuote)
+                {
+                    inSingleQuote = !inSingleQuote;
+                    continue;
+                }
+
+                if (c == '"' && !inSingleQuote)
+                {
+                    inDoubleQuote = !inDoubleQuote;
+                    continue;
+                }
+
+                if (char.IsWhiteSpace(c) && !inSingleQuote && !inDoubleQuote)
+                {
+                    if (current.Length > 0)
+                    {
+                        list.Add(current.ToString());
+                        current.Clear();
+                    }
+                    continue;
+                }
+
+                current.Append(c);
+            }
+
+            if (current.Length > 0)
+            {
+                list.Add(current.ToString());
+            }
+
+            return list.ToArray();
         }
 
         private async Task<AdbCommandResult> RunAdbCommandDetailedAsync(int timeoutMs, params string[] arguments)
@@ -106,12 +165,12 @@ namespace ScrcpyGui.Services
         public async Task<List<AdbDevice>> GetDevicesAsync()
         {
             var devices = new List<AdbDevice>();
-            await StartServerWithRecoveryAsync();
-            var result = await RunAdbCommandDetailedAsync(8000, "devices", "-l");
+            // Try query devices directly first for snappy UI response
+            var result = await RunAdbCommandDetailedAsync(5000, "devices", "-l");
             if (IsRecoverableAdbFailure(result))
             {
                 KillResidualProcesses();
-                await Task.Delay(1200);
+                await Task.Delay(800);
                 await StartServerWithRecoveryAsync();
                 result = await RunAdbCommandDetailedAsync(8000, "devices", "-l");
             }
@@ -222,27 +281,41 @@ namespace ScrcpyGui.Services
             var tempPath = Path.Combine(Path.GetTempPath(), $"scrcpy_screencap_{Guid.NewGuid()}.png");
             try
             {
-                using var process = new Process
+                var startInfo = new ProcessStartInfo
                 {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = _pathService.AdbPath,
-                        Arguments = $"-s {serial} exec-out screencap -p",
-                        RedirectStandardOutput = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    }
+                    FileName = _pathService.AdbPath,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
                 };
+                startInfo.ArgumentList.Add("-s");
+                startInfo.ArgumentList.Add(serial);
+                startInfo.ArgumentList.Add("exec-out");
+                startInfo.ArgumentList.Add("screencap");
+                startInfo.ArgumentList.Add("-p");
 
+                using var process = new Process { StartInfo = startInfo };
                 process.Start();
-                using (var fs = new FileStream(tempPath, FileMode.Create, FileAccess.Write))
-                {
-                    await process.StandardOutput.BaseStream.CopyToAsync(fs);
-                }
-                await process.WaitForExitAsync();
 
-                var bytes = await File.ReadAllBytesAsync(tempPath);
-                return Convert.ToBase64String(bytes);
+                using (var timeout = new System.Threading.CancellationTokenSource(10000))
+                {
+                    using (var fs = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        await process.StandardOutput.BaseStream.CopyToAsync(fs, timeout.Token);
+                    }
+                    await process.WaitForExitAsync(timeout.Token);
+                }
+
+                if (File.Exists(tempPath))
+                {
+                    var fileInfo = new FileInfo(tempPath);
+                    if (fileInfo.Length > 100)
+                    {
+                        var bytes = await File.ReadAllBytesAsync(tempPath);
+                        return Convert.ToBase64String(bytes);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -342,13 +415,31 @@ namespace ScrcpyGui.Services
                 return;
             }
 
-            var configuredAdbPath = Path.GetFullPath(_pathService.AdbPath);
+            string configuredAdbPath;
+            try
+            {
+                configuredAdbPath = Path.GetFullPath(_pathService.AdbPath);
+            }
+            catch
+            {
+                return;
+            }
+
             foreach (var process in Process.GetProcessesByName("adb"))
             {
                 try
                 {
-                    var processPath = process.MainModule?.FileName;
-                    if (!string.Equals(processPath, configuredAdbPath, StringComparison.OrdinalIgnoreCase))
+                    string? processPath = null;
+                    try
+                    {
+                        processPath = process.MainModule?.FileName;
+                    }
+                    catch
+                    {
+                        // Ignore permission/architecture mismatches
+                    }
+
+                    if (processPath != null && !string.Equals(processPath, configuredAdbPath, StringComparison.OrdinalIgnoreCase))
                     {
                         continue;
                     }
@@ -407,8 +498,14 @@ namespace ScrcpyGui.Services
 
         public async Task<string> InstallApkAsync(string serial, string apkFilePath)
         {
-            // Increase timeout for apk installation (e.g., 60 seconds)
-            return await RunAdbCommandAsync(60000, "-s", serial, "install", apkFilePath);
+            // Increase timeout for apk installation, support reinstall with -r
+            return await RunAdbCommandAsync(60000, "-s", serial, "install", "-r", apkFilePath);
+        }
+
+        public async Task<string> GetAdbVersionAsync()
+        {
+            var result = await RunAdbCommandDetailedAsync(3000, "version");
+            return result.Stdout;
         }
     }
 }

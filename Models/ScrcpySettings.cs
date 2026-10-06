@@ -18,6 +18,12 @@ namespace ScrcpyGui.Models
         public bool Fullscreen { get; set; } = false;
         public string CustomArguments { get; set; } = string.Empty;
         public bool IgnoreEncoderConstraints { get; set; } = false;
+
+        // Scrcpy 5.0+: Hardware decoding ("auto", "d3d11va", "disabled")
+        public string Hwdec { get; set; } = "auto";
+
+        // Video buffering (ms, 0 = default)
+        public int VideoBuffer { get; set; } = 0;
         
         public string CustomScrcpyPath { get; set; } = string.Empty;
         public string CustomAdbPath { get; set; } = string.Empty;
@@ -35,6 +41,7 @@ namespace ScrcpyGui.Models
         public string CameraAr { get; set; } = string.Empty; // e.g. 16:9, 4:3
         public bool CameraTorch { get; set; } = false;
         public double CameraZoom { get; set; } = 1.0;
+        public int CameraOrientation { get; set; } = 0; // 0, 90, 180, 270
 
         // Desktop Mode Settings
         public int VdWidth { get; set; } = 1920;
@@ -60,7 +67,22 @@ namespace ScrcpyGui.Models
             if (OtgMode)
             {
                 args.Append("--otg ");
+                if (!string.IsNullOrEmpty(CustomArguments))
+                {
+                    args.Append($"{CustomArguments} ");
+                }
                 return args.ToString().Trim(); // OTG mode overrides normal video/audio mirroring
+            }
+
+            // Scrcpy 5.0+ Hardware Decoding
+            if (!string.IsNullOrWhiteSpace(Hwdec))
+            {
+                args.Append($"--hwdec={Hwdec.Trim()} ");
+            }
+
+            if (VideoBuffer > 0)
+            {
+                args.Append($"--video-buffer={VideoBuffer} ");
             }
 
             if (MaxSize > 0)
@@ -115,8 +137,10 @@ namespace ScrcpyGui.Models
             {
                 args.Append("--video-source=camera ");
                 
-                // Set default orientation for camera mode so portrait holding gives upright picture
-                args.Append("--orientation=90 ");
+                if (CameraOrientation != 0)
+                {
+                    args.Append($"--orientation={CameraOrientation} ");
+                }
                 
                 if (!string.IsNullOrEmpty(CameraId))
                     args.Append($"--camera-id={CameraId} ");

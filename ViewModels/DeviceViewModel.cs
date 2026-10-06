@@ -146,6 +146,7 @@ namespace ScrcpyGui.ViewModels
                 if (SetProperty(ref _isAiThinking, value))
                 {
                     OnPropertyChanged(nameof(IsNotAiThinking));
+                    SendToAiCommand?.NotifyCanExecuteChanged();
                 }
             }
         }
@@ -185,7 +186,7 @@ namespace ScrcpyGui.ViewModels
             ClearLogCommand = new RelayCommand(() => LogOutput = string.Empty);
             KillAdbCommand = new AsyncRelayCommand(KillAdbAsync);
             RunTerminalCommand = new AsyncRelayCommand(RunTerminalCommandAsync);
-            SendToAiCommand = new AsyncRelayCommand(SendToAiAsync);
+            SendToAiCommand = new AsyncRelayCommand(SendToAiAsync, () => !IsAiThinking && SelectedDevice != null);
 
             // Initial verification of binaries
             CheckBinaries();
@@ -207,20 +208,30 @@ namespace ScrcpyGui.ViewModels
             
             try
             {
-                Devices.Clear();
+                var previousSerial = SelectedDevice?.Serial;
                 var list = await _adbService.GetDevicesAsync();
                 if (list.Count == 0)
                 {
-                    await Task.Delay(700);
+                    await Task.Delay(400);
                     list = await _adbService.GetDevicesAsync();
                 }
 
+                Devices.Clear();
+                AdbDevice? matchedDevice = null;
                 foreach (var device in list)
                 {
                     Devices.Add(device);
+                    if (!string.IsNullOrEmpty(previousSerial) && device.Serial == previousSerial)
+                    {
+                        matchedDevice = device;
+                    }
                 }
 
-                if (Devices.Count > 0)
+                if (matchedDevice != null)
+                {
+                    SelectedDevice = matchedDevice;
+                }
+                else if (Devices.Count > 0)
                 {
                     SelectedDevice = Devices[0];
                 }
@@ -442,15 +453,45 @@ namespace ScrcpyGui.ViewModels
 
             try
             {
+                var workingDir = !string.IsNullOrWhiteSpace(_pathService.ScrcpyDirectory) && System.IO.Directory.Exists(_pathService.ScrcpyDirectory)
+                    ? _pathService.ScrcpyDirectory
+                    : AppDomain.CurrentDomain.BaseDirectory;
+
                 var startInfo = new ProcessStartInfo
                 {
                     FileName = "powershell.exe",
-                    WorkingDirectory = System.IO.Directory.Exists(_pathService.ScrcpyDirectory) ? _pathService.ScrcpyDirectory : AppDomain.CurrentDomain.BaseDirectory,
+                    WorkingDirectory = workingDir,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
+                    StandardOutputEncoding = System.Text.Encoding.UTF8,
+                    StandardErrorEncoding = System.Text.Encoding.UTF8,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
+
+                // Prepend scrcpy & adb directories to PATH so users can easily run `scrcpy` and `adb`
+                var pathList = new System.Collections.Generic.List<string>();
+                if (!string.IsNullOrEmpty(_pathService.ScrcpyDirectory) && System.IO.Directory.Exists(_pathService.ScrcpyDirectory))
+                {
+                    pathList.Add(_pathService.ScrcpyDirectory);
+                }
+                if (!string.IsNullOrEmpty(_pathService.AdbPath))
+                {
+                    var adbDir = System.IO.Path.GetDirectoryName(_pathService.AdbPath);
+                    if (!string.IsNullOrEmpty(adbDir) && System.IO.Directory.Exists(adbDir) && !pathList.Contains(adbDir))
+                    {
+                        pathList.Add(adbDir);
+                    }
+                }
+                var curPath = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
+                if (!string.IsNullOrEmpty(curPath)) pathList.Add(curPath);
+                startInfo.EnvironmentVariables["PATH"] = string.Join(System.IO.Path.PathSeparator, pathList);
+
+                if (!string.IsNullOrEmpty(_pathService.AdbPath) && System.IO.File.Exists(_pathService.AdbPath))
+                {
+                    startInfo.EnvironmentVariables["ADB"] = _pathService.AdbPath;
+                }
+
                 startInfo.ArgumentList.Add("-NoProfile");
                 startInfo.ArgumentList.Add("-Command");
                 startInfo.ArgumentList.Add(command);
@@ -465,7 +506,7 @@ namespace ScrcpyGui.ViewModels
                 {
                     if (e.Data != null)
                     {
-                        App.MainWindowInstance?.DispatcherQueue.TryEnqueue(() => AppendLog(e.Data));
+                        AppendLog(e.Data);
                     }
                 };
 
@@ -473,7 +514,7 @@ namespace ScrcpyGui.ViewModels
                 {
                     if (e.Data != null)
                     {
-                        App.MainWindowInstance?.DispatcherQueue.TryEnqueue(() => AppendLog(e.Data));
+                        AppendLog(e.Data);
                     }
                 };
 
@@ -496,17 +537,11 @@ namespace ScrcpyGui.ViewModels
             {
                 await process.WaitForExitAsync();
                 var exitCode = process.ExitCode;
-                App.MainWindowInstance?.DispatcherQueue.TryEnqueue(() =>
-                {
-                    AppendLog($"命令已退出，退出代码: {exitCode}");
-                });
+                AppendLog($"命令已退出，退出代码: {exitCode}");
             }
             catch (Exception ex)
             {
-                App.MainWindowInstance?.DispatcherQueue.TryEnqueue(() =>
-                {
-                    AppendLog($"命令状态监控失败: {ex.Message}");
-                });
+                AppendLog($"命令状态监控失败: {ex.Message}");
             }
             finally
             {
@@ -515,6 +550,19 @@ namespace ScrcpyGui.ViewModels
         }
 
         private void AppendLog(string message)
+        {
+            var dispatcher = App.MainWindowInstance?.DispatcherQueue;
+            if (dispatcher != null && !dispatcher.HasThreadAccess)
+            {
+                dispatcher.TryEnqueue(() => SafeAppendLog(message));
+            }
+            else
+            {
+                SafeAppendLog(message);
+            }
+        }
+
+        private void SafeAppendLog(string message)
         {
             LogOutput += $"[{DateTime.Now:HH:mm:ss}] {message}\n";
             if (LogOutput.Length > MaxLogLength)
@@ -527,6 +575,7 @@ namespace ScrcpyGui.ViewModels
         {
             StartMirroringCommand.NotifyCanExecuteChanged();
             StopMirroringCommand.NotifyCanExecuteChanged();
+            SendToAiCommand?.NotifyCanExecuteChanged();
         }
 
         private void AppendAiLog(string message)
@@ -582,8 +631,17 @@ namespace ScrcpyGui.ViewModels
                     case "input_text":
                         if (!string.IsNullOrEmpty(action.Text))
                         {
-                            string safeText = action.Text.Replace(" ", "%s");
-                            adbCommand = $"-s {SelectedDevice.Serial} shell input text '{safeText}'";
+                            var escaped = action.Text
+                                .Replace("\\", "\\\\")
+                                .Replace("'", "\\'")
+                                .Replace("\"", "\\\"")
+                                .Replace("&", "\\&")
+                                .Replace("<", "\\<")
+                                .Replace(">", "\\>")
+                                .Replace(";", "\\;")
+                                .Replace("|", "\\|")
+                                .Replace(" ", "%s");
+                            adbCommand = $"-s {SelectedDevice.Serial} shell input text \"{escaped}\"";
                         }
                         break;
                     case "keyevent":

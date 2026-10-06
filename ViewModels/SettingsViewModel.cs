@@ -18,6 +18,65 @@ namespace ScrcpyGui.ViewModels
             _pathService = pathService;
         }
 
+        // Scrcpy 5.0+ Hardware Decoding ("auto", "d3d11va", "disabled")
+        public string Hwdec
+        {
+            get => Settings.Hwdec;
+            set
+            {
+                if (Settings.Hwdec != value)
+                {
+                    Settings.Hwdec = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HwdecIndex));
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        public int HwdecIndex
+        {
+            get => Settings.Hwdec?.ToLowerInvariant() switch
+            {
+                "auto" => 0,
+                "d3d11va" => 1,
+                "disabled" => 2,
+                _ => 0
+            };
+            set
+            {
+                string val = value switch
+                {
+                    0 => "auto",
+                    1 => "d3d11va",
+                    2 => "disabled",
+                    _ => "auto"
+                };
+                if (Settings.Hwdec != val)
+                {
+                    Settings.Hwdec = val;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(Hwdec));
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        // Scrcpy 5.0+ Video Buffer (ms)
+        public double VideoBuffer
+        {
+            get => Settings.VideoBuffer;
+            set
+            {
+                if (Settings.VideoBuffer != (int)value)
+                {
+                    Settings.VideoBuffer = (int)value;
+                    OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
         public double MaxSize
         {
             get => Settings.MaxSize;
@@ -371,6 +430,52 @@ namespace ScrcpyGui.ViewModels
                 {
                     Settings.CameraZoom = normalized;
                     OnPropertyChanged();
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        // Camera Orientation (0, 90, 180, 270)
+        public int CameraOrientation
+        {
+            get => Settings.CameraOrientation;
+            set
+            {
+                if (Settings.CameraOrientation != value)
+                {
+                    Settings.CameraOrientation = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(CameraOrientationIndex));
+                    _settingsService.SaveSettings();
+                }
+            }
+        }
+
+        public int CameraOrientationIndex
+        {
+            get => Settings.CameraOrientation switch
+            {
+                0 => 0,
+                90 => 1,
+                180 => 2,
+                270 => 3,
+                _ => 0
+            };
+            set
+            {
+                int val = value switch
+                {
+                    0 => 0,
+                    1 => 90,
+                    2 => 180,
+                    3 => 270,
+                    _ => 0
+                };
+                if (Settings.CameraOrientation != val)
+                {
+                    Settings.CameraOrientation = val;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(CameraOrientation));
                     _settingsService.SaveSettings();
                 }
             }

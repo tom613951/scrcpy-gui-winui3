@@ -58,6 +58,12 @@
                                 <TextBox Header="Camera ID" Text="{x:Bind ViewModel.CameraId, Mode=TwoWay}" PlaceholderText="留空则自动选择" />
                                 <TextBox Header="相机画面比例 (Aspect Ratio)" Text="{x:Bind ViewModel.CameraAr, Mode=TwoWay}" PlaceholderText="例如 16:9, 4:3" />
                                 <NumberBox Header="相机变焦 (Zoom)" Value="{x:Bind ViewModel.CameraZoom, Mode=TwoWay}" Minimum="1" SmallChange="0.1" LargeChange="0.5" SpinButtonPlacementMode="Inline" />
+                                <ComboBox Header="画面旋转方向" HorizontalAlignment="Stretch" SelectedIndex="{x:Bind ViewModel.CameraOrientationIndex, Mode=TwoWay}">
+                                    <ComboBoxItem Content="原生方向 (0°)" />
+                                    <ComboBoxItem Content="顺时针旋转 90°" />
+                                    <ComboBoxItem Content="旋转 180°" />
+                                    <ComboBoxItem Content="顺时针旋转 270°" />
+                                </ComboBox>
                                 <ToggleSwitch Header="开启闪光灯 (Torch)" IsOn="{x:Bind ViewModel.CameraTorch, Mode=TwoWay}" />
                             </StackPanel>
                         </Border>
@@ -83,6 +89,45 @@
                 <StackPanel Spacing="8">
                     <TextBlock Text="性能与分辨率" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
                     
+                    <!-- Card: Hardware Decoding (scrcpy 5.0+) -->
+                    <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="220" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="4">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="硬件解码 (Hardware Decoding)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                    <Border Background="{ThemeResource AccentFillColorDefaultBrush}" CornerRadius="4" Padding="6,2">
+                                        <TextBlock Text="scrcpy v5.0" Foreground="White" FontSize="10" FontWeight="Bold" />
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock Text="利用电脑 GPU 硬件加速解码视频流，CPU 占用降低达 10 倍，减少功耗与发热" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                            <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectedIndex="{x:Bind ViewModel.HwdecIndex, Mode=TwoWay}">
+                                <ComboBoxItem Content="自动 (Auto - 优先硬件加速)" />
+                                <ComboBoxItem Content="D3D11VA (Windows 硬件加速)" />
+                                <ComboBoxItem Content="禁用 (Disabled - 强制软解)" />
+                            </ComboBox>
+                        </Grid>
+                    </Border>
+
+                    <!-- Card: Video Buffer (scrcpy 5.0+) -->
+                    <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="220" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="视频缓冲延迟 (ms)" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="为视频流添加缓冲毫秒数，增加缓冲可减少 Wi-Fi 丢帧与画面卡顿（0 = 实时零缓冲）" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                            <NumberBox Grid.Column="1" Minimum="0" Maximum="1000" SmallChange="20" LargeChange="100" Value="{x:Bind ViewModel.VideoBuffer, Mode=TwoWay}" SpinButtonPlacementMode="Inline" VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
                     <!-- Card: Max Size -->
                     <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" Padding="16">
                         <Grid>
