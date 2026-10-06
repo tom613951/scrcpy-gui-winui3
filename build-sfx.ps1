@@ -44,9 +44,15 @@ Write-Host "✅ 找到 7-Zip 工具链: $sevenZipExe" -ForegroundColor Green
 
 # 2. 编译发布便携目录 (若尚未编译)
 Write-Host "1/4 正在编译 WinUI 3 Release 二进制文件..." -ForegroundColor Cyan
-dotnet publish ScrcpyGui.csproj -c Release -r win-x64 --self-contained false -o $publishDir
+dotnet build ScrcpyGui.csproj -c Release -r win-x64
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ 编译失败，请检查编译输出！" -ForegroundColor Red
+    exit 1
+}
+if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
+dotnet publish ScrcpyGui.csproj -c Release -r win-x64 --self-contained false -o $publishDir --no-build
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "❌ 发布失败，请检查输出！" -ForegroundColor Red
     exit 1
 }
 
@@ -180,7 +186,7 @@ Write-Host "4/4 正在拼接生成单文件可执行程序..." -ForegroundColor 
 $configContent = @'
 ;!@Install@!UTF-8!
 Title="Scrcpy GUI"
-BeginPrompt=""
+GUIMode="2"
 RunProgram="ScrcpyGui.exe"
 ;!@InstallEnd@!
 '@
