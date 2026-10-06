@@ -105,11 +105,16 @@ if ($LASTEXITCODE -ne 0 -or -not (Test-Path $singleFileExe)) {
     exit 1
 }
 
-# 6. 清理临时压缩包
-Write-Host "4/4 正在清理临时中间文件..." -ForegroundColor Cyan
+# 6. 保存便携版 ZIP 并清理临时文件
+Write-Host "4/4 正在输出便携版 ZIP 与清理临时文件..." -ForegroundColor Cyan
+$portableZip = "scrcpy-gui-winui3-portable.zip"
+Copy-Item $tempZip $portableZip -Force
 if (Test-Path $tempZip) { Remove-Item $tempZip -Force }
 
 $sizeMb = [Math]::Round(((Get-Item $singleFileExe).Length / 1MB), 2)
-Write-Host "🎉 固定缓存目录单文件构建成功: $singleFileExe ($sizeMb MB)" -ForegroundColor Green
+$zipSizeMb = [Math]::Round(((Get-Item $portableZip).Length / 1MB), 2)
+Write-Host "🎉 构建完成:" -ForegroundColor Green
+Write-Host "   - 单文件版: $singleFileExe ($sizeMb MB)" -ForegroundColor Green
+Write-Host "   - 便携包版: $portableZip ($zipSizeMb MB)" -ForegroundColor Green
 Write-Host "   特性: 首次极速解压至 %LOCALAPPDATA%\ScrcpyGui\app，之后次次秒开，无任何解压动画与报错！" -ForegroundColor DarkCyan
 exit 0
