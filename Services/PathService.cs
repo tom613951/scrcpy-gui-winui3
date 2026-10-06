@@ -17,7 +17,8 @@ namespace ScrcpyGui.Services
                     : AppDomain.CurrentDomain.BaseDirectory;
 
                 var tempPath = Path.GetTempPath().TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-                if (dir.StartsWith(tempPath, StringComparison.OrdinalIgnoreCase))
+                var localAppPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                if (dir.StartsWith(tempPath, StringComparison.OrdinalIgnoreCase) || dir.StartsWith(localAppPath, StringComparison.OrdinalIgnoreCase))
                 {
                     var roamingDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScrcpyGui");
                     Directory.CreateDirectory(roamingDir);
