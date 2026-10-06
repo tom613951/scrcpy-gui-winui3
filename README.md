@@ -16,8 +16,10 @@
 
 ## 快速开始
 
-1. **运行环境**：需要安装 [.NET 9 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)。如遇运行库错误，请一并安装 Microsoft Windows App Runtime。
-2. **下载运行**：从 [Releases 页面](https://github.com/tom613951/scrcpy-gui-winui3/releases) 下载 scrcpy-gui-winui3-portable.zip，解压后运行 ScrcpyGui.exe。
+1. **运行环境**：需要安装 [.NET 9 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)。
+2. **下载运行**：从 [Releases 页面](https://github.com/tom613951/scrcpy-gui-winui3/releases) 获取：
+   - **推荐：单文件版 (`ScrcpyGui-SingleFile.exe`)**：约 34MB，单文件免安装，解压即用，配置自动持久化至 `%APPDATA%\ScrcpyGui`。
+   - **便携压缩包 (`scrcpy-gui-winui3-portable.zip`)**：解压至任意目录运行 `ScrcpyGui.exe`，配置保存在程序同级目录。
 3. **配置路径**：首次启动进入“系统设置”，指定本地 scrcpy 所在目录（支持 scrcpy v5.0+）；如 adb.exe 位于独立路径，可单独指定。
 
 ## 使用提示
@@ -28,11 +30,21 @@
 
 ## 本地构建
 
+### 1. 极简单文件版（推荐，约 34MB，基于 7z-SFX + LZMA2 Ultra）
+
+依赖本地已安装 7-Zip（含 `7zS.sfx` 模块）：
+
+```powershell
+pwsh ./build-sfx.ps1
+```
+
+脚本将自动编译 WinUI 3 Release、注入应用原生 `.ico` 图标到 SFX 外壳并完成打包，生成 `ScrcpyGui-SingleFile.exe`。
+
+### 2. 框架依赖便携文件夹版（体积较小约 20MB）
+
 ```powershell
 dotnet publish ScrcpyGui.csproj -c Release -r win-x64 --self-contained false -o publish\portable
 ```
-
-构建完成后将在 `publish\portable` 目录下生成可执行文件。
 
 ## 开源协议
 

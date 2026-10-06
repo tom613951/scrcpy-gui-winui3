@@ -5,8 +5,28 @@ namespace ScrcpyGui.Services
 {
     public class PathService
     {
-        // For a portable app, store settings in the same directory as the executable
-        public static string AppDataDirectory => AppDomain.CurrentDomain.BaseDirectory;
+        // For a portable app, store settings in the same directory as the executable on disk.
+        // When running from a temporary directory (e.g. 7z-SFX single-file), persist to %APPDATA%\ScrcpyGui.
+        public static string AppDataDirectory
+        {
+            get
+            {
+                var exeDir = Path.GetDirectoryName(Environment.ProcessPath);
+                var dir = (!string.IsNullOrEmpty(exeDir) && Directory.Exists(exeDir))
+                    ? exeDir
+                    : AppDomain.CurrentDomain.BaseDirectory;
+
+                var tempPath = Path.GetTempPath().TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                if (dir.StartsWith(tempPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    var roamingDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScrcpyGui");
+                    Directory.CreateDirectory(roamingDir);
+                    return roamingDir;
+                }
+
+                return dir;
+            }
+        }
 
         public static string LogsDirectory => Path.Combine(AppDataDirectory, "logs");
 

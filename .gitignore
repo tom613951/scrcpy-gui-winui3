@@ -54,3 +54,7 @@ Generated\ Files/
 *_wpftmp.csproj
 
 *.zip
+*.7z
+*SingleFile.exe
+custom_7zS.sfx
+sfx-config.txt

@@ -468,7 +468,7 @@ namespace ScrcpyGui.ViewModels
             {
                 var workingDir = !string.IsNullOrWhiteSpace(_pathService.ScrcpyDirectory) && System.IO.Directory.Exists(_pathService.ScrcpyDirectory)
                     ? _pathService.ScrcpyDirectory
-                    : AppDomain.CurrentDomain.BaseDirectory;
+                    : PathService.AppDataDirectory;
 
                 var startInfo = new ProcessStartInfo
                 {
