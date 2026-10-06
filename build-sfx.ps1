@@ -57,7 +57,14 @@ if (Test-Path "$publishDir\settings.json") {
 # 3. 使用 7-Zip 进行 LZMA2 高强度压缩
 Write-Host "2/4 正在高强度压缩便携目录 (LZMA2 Ultra)..." -ForegroundColor Cyan
 if (Test-Path $temp7z) { Remove-Item $temp7z -Force }
-& $sevenZipExe a -t7z -mx9 -mfb=64 -md=32m -ms=on $temp7z "$publishDir\*" | Out-Null
+$absTemp7z = [System.IO.Path]::GetFullPath($temp7z)
+Push-Location $publishDir
+try {
+    & $sevenZipExe a -t7z -mx9 -mfb=64 -md=32m -ms=on $absTemp7z * | Out-Null
+}
+finally {
+    Pop-Location
+}
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path $temp7z)) {
     Write-Host "❌ 7-Zip 压缩失败！" -ForegroundColor Red
     exit 1
