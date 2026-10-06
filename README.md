@@ -26,15 +26,13 @@
 - 设备列表刷新异常时，可点击“重启 ADB 服务”重新初始化连接。
 - 多工具共存时建议在设置中显式指定 ADB 路径，避免端口冲突。
 
-## 本地打包
+## 本地构建
 
-运行根目录打包脚本：
+```powershell
+dotnet publish ScrcpyGui.csproj -c Release -r win-x64 --self-contained false -o publish\portable
+```
 
-`powershell
-.\build.ps1
-`
-
-构建完成后将在 publish\portable 目录下生成 scrcpy-gui-winui3-portable.zip。
+构建完成后将在 `publish\portable` 目录下生成可执行文件。
 
 ## 开源协议
 

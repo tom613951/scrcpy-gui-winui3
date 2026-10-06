@@ -83,7 +83,7 @@ The JSON should match this schema:
   ""actions"": [
     {
       ""action"": ""tap"" | ""swipe"" | ""input_text"" | ""keyevent"",
-      ""position"": { ""x"": 123, ""y"": 456 },
+      ""position"": { ""x"": 123, ""y"": 456 }, // coordinates normalized 0-1000 (top-left 0,0; bottom-right 1000,1000)
       ""target_position"": { ""x"": 123, ""y"": 456 },
       ""text"": ""string to input""
     }

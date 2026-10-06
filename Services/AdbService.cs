@@ -39,21 +39,16 @@ namespace ScrcpyGui.Services
             var current = new StringBuilder();
             bool inSingleQuote = false;
             bool inDoubleQuote = false;
-            bool escaping = false;
 
             for (int i = 0; i < commandLine.Length; i++)
             {
                 char c = commandLine[i];
-                if (escaping)
-                {
-                    current.Append(c);
-                    escaping = false;
-                    continue;
-                }
 
-                if (c == '\\' && !inSingleQuote)
+                // Escaped quote: \" or \'
+                if (c == '\\' && i + 1 < commandLine.Length && (commandLine[i + 1] == '"' || commandLine[i + 1] == '\''))
                 {
-                    escaping = true;
+                    current.Append(commandLine[i + 1]);
+                    i++;
                     continue;
                 }
 
@@ -278,7 +273,6 @@ namespace ScrcpyGui.Services
         {
             if (!File.Exists(_pathService.AdbPath)) return string.Empty;
 
-            var tempPath = Path.Combine(Path.GetTempPath(), $"scrcpy_screencap_{Guid.NewGuid()}.png");
             try
             {
                 var startInfo = new ProcessStartInfo
@@ -298,35 +292,19 @@ namespace ScrcpyGui.Services
                 using var process = new Process { StartInfo = startInfo };
                 process.Start();
 
-                using (var timeout = new System.Threading.CancellationTokenSource(10000))
-                {
-                    using (var fs = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
-                    {
-                        await process.StandardOutput.BaseStream.CopyToAsync(fs, timeout.Token);
-                    }
-                    await process.WaitForExitAsync(timeout.Token);
-                }
+                using var timeout = new System.Threading.CancellationTokenSource(10000);
+                using var ms = new MemoryStream();
+                await process.StandardOutput.BaseStream.CopyToAsync(ms, timeout.Token);
+                await process.WaitForExitAsync(timeout.Token);
 
-                if (File.Exists(tempPath))
+                if (ms.Length > 100)
                 {
-                    var fileInfo = new FileInfo(tempPath);
-                    if (fileInfo.Length > 100)
-                    {
-                        var bytes = await File.ReadAllBytesAsync(tempPath);
-                        return Convert.ToBase64String(bytes);
-                    }
+                    return Convert.ToBase64String(ms.ToArray());
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error capturing screen: {ex.Message}");
-            }
-            finally
-            {
-                if (File.Exists(tempPath))
-                {
-                    try { File.Delete(tempPath); } catch { }
-                }
             }
             
             return string.Empty;

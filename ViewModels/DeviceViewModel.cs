@@ -216,28 +216,14 @@ namespace ScrcpyGui.ViewModels
                     list = await _adbService.GetDevicesAsync();
                 }
 
-                Devices.Clear();
-                AdbDevice? matchedDevice = null;
-                foreach (var device in list)
+                var dispatcher = App.MainWindowInstance?.DispatcherQueue;
+                if (dispatcher != null && !dispatcher.HasThreadAccess)
                 {
-                    Devices.Add(device);
-                    if (!string.IsNullOrEmpty(previousSerial) && device.Serial == previousSerial)
-                    {
-                        matchedDevice = device;
-                    }
-                }
-
-                if (matchedDevice != null)
-                {
-                    SelectedDevice = matchedDevice;
-                }
-                else if (Devices.Count > 0)
-                {
-                    SelectedDevice = Devices[0];
+                    dispatcher.TryEnqueue(() => ApplyRefreshedDevices(list, previousSerial));
                 }
                 else
                 {
-                    SelectedDevice = null;
+                    ApplyRefreshedDevices(list, previousSerial);
                 }
             }
             catch (Exception ex)
@@ -247,6 +233,33 @@ namespace ScrcpyGui.ViewModels
             finally
             {
                 IsRefreshing = false;
+            }
+        }
+
+        private void ApplyRefreshedDevices(System.Collections.Generic.List<AdbDevice> list, string? previousSerial)
+        {
+            Devices.Clear();
+            AdbDevice? matchedDevice = null;
+            foreach (var device in list)
+            {
+                Devices.Add(device);
+                if (!string.IsNullOrEmpty(previousSerial) && device.Serial == previousSerial)
+                {
+                    matchedDevice = device;
+                }
+            }
+
+            if (matchedDevice != null)
+            {
+                SelectedDevice = matchedDevice;
+            }
+            else if (Devices.Count > 0)
+            {
+                SelectedDevice = Devices[0];
+            }
+            else
+            {
+                SelectedDevice = null;
             }
         }
 
@@ -494,7 +507,7 @@ namespace ScrcpyGui.ViewModels
 
                 startInfo.ArgumentList.Add("-NoProfile");
                 startInfo.ArgumentList.Add("-Command");
-                startInfo.ArgumentList.Add(command);
+                startInfo.ArgumentList.Add($"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; {command}");
 
                 var process = new Process
                 {
@@ -591,16 +604,30 @@ namespace ScrcpyGui.ViewModels
             if (SelectedDevice == null) return;
             
             var res = await _adbService.GetScreenResolutionAsync(SelectedDevice.Serial);
-            double scaleX = res.HasValue ? res.Value.width / 1000.0 : 1.0;
-            double scaleY = res.HasValue ? res.Value.height / 1000.0 : 1.0;
+            int screenW = res?.width ?? 1080;
+            int screenH = res?.height ?? 2400;
 
             if (res.HasValue)
             {
-                AppendAiLog($"设备分辨率：{res.Value.width}x{res.Value.height}。缩放因子 X:{scaleX}, Y:{scaleY}");
+                AppendAiLog($"设备分辨率：{screenW}x{screenH}");
             }
             else
             {
-                AppendAiLog("获取设备分辨率失败，将使用默认坐标(1000x1000比例)。");
+                AppendAiLog($"获取设备分辨率失败，使用默认基准：{screenW}x{screenH}");
+            }
+
+            int ToScreenX(double x)
+            {
+                if (x <= 1.0) return (int)(x * screenW);
+                if (x > 1000) return (int)x;
+                return (int)(x * screenW / 1000.0);
+            }
+
+            int ToScreenY(double y)
+            {
+                if (y <= 1.0) return (int)(y * screenH);
+                if (y > 1000) return (int)y;
+                return (int)(y * screenH / 1000.0);
             }
 
             foreach (var action in actions)
@@ -613,18 +640,18 @@ namespace ScrcpyGui.ViewModels
                     case "tap":
                         if (action.Position != null)
                         {
-                            int x = (int)(action.Position.X * scaleX);
-                            int y = (int)(action.Position.Y * scaleY);
+                            int x = ToScreenX(action.Position.X);
+                            int y = ToScreenY(action.Position.Y);
                             adbCommand = $"-s {SelectedDevice.Serial} shell input tap {x} {y}";
                         }
                         break;
                     case "swipe":
                         if (action.Position != null && action.TargetPosition != null)
                         {
-                            int x1 = (int)(action.Position.X * scaleX);
-                            int y1 = (int)(action.Position.Y * scaleY);
-                            int x2 = (int)(action.TargetPosition.X * scaleX);
-                            int y2 = (int)(action.TargetPosition.Y * scaleY);
+                            int x1 = ToScreenX(action.Position.X);
+                            int y1 = ToScreenY(action.Position.Y);
+                            int x2 = ToScreenX(action.TargetPosition.X);
+                            int y2 = ToScreenY(action.TargetPosition.Y);
                             adbCommand = $"-s {SelectedDevice.Serial} shell input swipe {x1} {y1} {x2} {y2}";
                         }
                         break;
@@ -665,18 +692,31 @@ namespace ScrcpyGui.ViewModels
             }
         }
 
+        private void AddAiChatMessage(string role, string text)
+        {
+            var dispatcher = App.MainWindowInstance?.DispatcherQueue;
+            if (dispatcher != null && !dispatcher.HasThreadAccess)
+            {
+                dispatcher.TryEnqueue(() => AiChatHistory.Add(new UiChatMessage { Role = role, Text = text }));
+            }
+            else
+            {
+                AiChatHistory.Add(new UiChatMessage { Role = role, Text = text });
+            }
+        }
+
         private async Task SendToAiAsync()
         {
             if (string.IsNullOrWhiteSpace(AiInputMessage)) return;
             if (SelectedDevice == null)
             {
-                AiChatHistory.Add(new UiChatMessage { Role = "System", Text = "请先连接并选择一台设备。" });
+                AddAiChatMessage("System", "请先连接并选择一台设备。");
                 return;
             }
 
             var userText = AiInputMessage;
             AiInputMessage = string.Empty;
-            AiChatHistory.Add(new UiChatMessage { Role = "User", Text = userText });
+            AddAiChatMessage("User", userText);
             IsAiThinking = true;
 
             try
@@ -686,7 +726,7 @@ namespace ScrcpyGui.ViewModels
 
                 if (string.IsNullOrEmpty(base64Image))
                 {
-                    AiChatHistory.Add(new UiChatMessage { Role = "System", Text = "截图失败，请确保设备在线。" });
+                    AddAiChatMessage("System", "截图失败，请确保设备在线。");
                     return;
                 }
 
@@ -698,7 +738,7 @@ namespace ScrcpyGui.ViewModels
                     _settingsService.Settings.AiModelName,
                     _settingsService.Settings.AiApiKey);
 
-                AiChatHistory.Add(new UiChatMessage { Role = "Agent", Text = response.Explanation });
+                AddAiChatMessage("Agent", response.Explanation);
 
                 if (response.Actions != null && response.Actions.Count > 0)
                 {
@@ -709,12 +749,20 @@ namespace ScrcpyGui.ViewModels
             }
             catch (Exception ex)
             {
-                AiChatHistory.Add(new UiChatMessage { Role = "System", Text = $"AI 服务出错: {ex.Message}" });
+                AddAiChatMessage("System", $"AI 服务出错: {ex.Message}");
                 AppendAiLog($"AI 请求异常: {ex.Message}\n{ex.StackTrace}");
             }
             finally
             {
-                IsAiThinking = false;
+                var dispatcher = App.MainWindowInstance?.DispatcherQueue;
+                if (dispatcher != null && !dispatcher.HasThreadAccess)
+                {
+                    dispatcher.TryEnqueue(() => IsAiThinking = false);
+                }
+                else
+                {
+                    IsAiThinking = false;
+                }
             }
         }
 
