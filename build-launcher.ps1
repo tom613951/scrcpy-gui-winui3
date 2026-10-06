@@ -40,16 +40,16 @@ Write-Host "✅ 工具链就绪:" -ForegroundColor Green
 Write-Host "   - 编译器: $cscExe" -ForegroundColor Gray
 Write-Host "   - 压缩器: $(if ($sevenZipExe) { $sevenZipExe } else { '内置 Compress-Archive' })" -ForegroundColor Gray
 
-# 3. 编译发布 WinUI 3 Release
-Write-Host "1/4 正在编译 WinUI 3 Release 二进制文件..." -ForegroundColor Cyan
-dotnet build ScrcpyGui.csproj -c Release -r win-x64
+# 3. 编译发布 WinUI 3 Release (关闭 R2R 避免冗余膨胀，保留即时编译高性能)
+Write-Host "1/4 正在编译 WinUI 3 Release 二进制文件 (体积优化)..." -ForegroundColor Cyan
+dotnet build ScrcpyGui.csproj -c Release -r win-x64 -p:PublishReadyToRun=false
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ 编译失败！" -ForegroundColor Red
     exit 1
 }
 
 if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
-dotnet publish ScrcpyGui.csproj -c Release -r win-x64 --self-contained false -o $publishDir --no-build
+dotnet publish ScrcpyGui.csproj -c Release -r win-x64 --self-contained false -p:PublishReadyToRun=false -o $publishDir --no-build
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ 发布失败！" -ForegroundColor Red
     exit 1
@@ -59,15 +59,18 @@ if (Test-Path "$publishDir\settings.json") {
     Remove-Item "$publishDir\settings.json" -Force
 }
 
+# 裁剪冗余的非中英多国语言包 (精简 ~15MB 原始体积与几百个文件)
+Get-ChildItem $publishDir -Directory | Where-Object { $_.Name -notmatch "^(zh|en)" } | Remove-Item -Recurse -Force
+
 # 4. 打包便携目录为标准 ZIP 资源
-Write-Host "2/4 正在高压缩便携目录..." -ForegroundColor Cyan
+Write-Host "2/4 正在高压缩便携目录 (极限 Deflate)..." -ForegroundColor Cyan
 if (Test-Path $tempZip) { Remove-Item $tempZip -Force }
 
 $absZip = [System.IO.Path]::GetFullPath($tempZip)
 Push-Location $publishDir
 try {
     if ($sevenZipExe) {
-        & $sevenZipExe a -tzip -mx9 $absZip "*" | Out-Null
+        & $sevenZipExe a -tzip -mx9 -mfb=258 -mpass=15 $absZip "*" | Out-Null
     } else {
         Compress-Archive -Path "*" -DestinationPath $absZip -CompressionLevel Optimal
     }
@@ -105,6 +108,9 @@ if ($LASTEXITCODE -ne 0 -or -not (Test-Path $singleFileExe)) {
     exit 1
 }
 
+# 同时输出标准命名的 ScrcpyGui.exe (避开系统旧的 ScrcpyGui-SingleFile.exe 图标缓存)
+Copy-Item $singleFileExe "ScrcpyGui.exe" -Force
+
 # 6. 保存便携版 ZIP 并清理临时文件
 Write-Host "4/4 正在输出便携版 ZIP 与清理临时文件..." -ForegroundColor Cyan
 $portableZip = "scrcpy-gui-winui3-portable.zip"
@@ -114,7 +120,7 @@ if (Test-Path $tempZip) { Remove-Item $tempZip -Force }
 $sizeMb = [Math]::Round(((Get-Item $singleFileExe).Length / 1MB), 2)
 $zipSizeMb = [Math]::Round(((Get-Item $portableZip).Length / 1MB), 2)
 Write-Host "🎉 构建完成:" -ForegroundColor Green
-Write-Host "   - 单文件版: $singleFileExe ($sizeMb MB)" -ForegroundColor Green
+Write-Host "   - 单文件版: $singleFileExe / ScrcpyGui.exe ($sizeMb MB)" -ForegroundColor Green
 Write-Host "   - 便携包版: $portableZip ($zipSizeMb MB)" -ForegroundColor Green
 Write-Host "   特性: 首次极速解压至 %LOCALAPPDATA%\ScrcpyGui\app，之后次次秒开，无任何解压动画与报错！" -ForegroundColor DarkCyan
 exit 0

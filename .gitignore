@@ -56,5 +56,7 @@ Generated\ Files/
 *.zip
 *.7z
 *SingleFile.exe
+/ScrcpyGui.exe
+scratch/
 custom_7zS.sfx
 sfx-config.txt

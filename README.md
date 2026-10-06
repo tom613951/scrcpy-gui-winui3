@@ -18,7 +18,7 @@
 
 1. **运行环境**：需要安装 [.NET 9 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)。
 2. **下载运行**：从 [Releases 页面](https://github.com/tom613951/scrcpy-gui-winui3/releases) 获取：
-   - **推荐：单文件版 (`ScrcpyGui-SingleFile.exe`)**：约 51MB，原生单文件免安装，首次运行自动释放至 `%LOCALAPPDATA%\ScrcpyGui\app`，后续运行**零延迟秒开**（无任何解压进度弹窗与报错），配置持久化保存在 `%APPDATA%\ScrcpyGui`。
+   - **推荐：单文件版 (`ScrcpyGui.exe` / `ScrcpyGui-SingleFile.exe`)**：约 46MB，原生单文件免安装，首次运行自动释放至 `%LOCALAPPDATA%\ScrcpyGui\app`，后续运行**零延迟秒开**（无任何解压进度弹窗与报错），配置持久化保存在 `%APPDATA%\ScrcpyGui`。
    - **便携压缩包 (`scrcpy-gui-winui3-portable.zip`)**：解压至任意目录运行 `ScrcpyGui.exe`，配置保存在程序同级目录。
 3. **配置路径**：首次启动进入“系统设置”，指定本地 scrcpy 所在目录（支持 scrcpy v5.0+）；如 adb.exe 位于独立路径，可单独指定。
 
@@ -30,13 +30,13 @@
 
 ## 本地构建
 
-### 1. 固定缓存目录单文件版（推荐，约 51MB，原生秒开启动器）
+### 1. 固定缓存目录单文件版（推荐，约 46MB，原生秒开启动器）
 
 ```powershell
 pwsh ./build-launcher.ps1
 ```
 
-脚本将自动编译 WinUI 3 Release，将内嵌资源与原生 `.ico` 图标编译为独立 Win32 启动器，输出 `ScrcpyGui-SingleFile.exe`。
+脚本将自动编译 WinUI 3 Release，将内嵌资源与原生 `.ico` 图标编译为独立 Win32 启动器，输出 `ScrcpyGui.exe` 与 `ScrcpyGui-SingleFile.exe`。
 
 ### 2. 框架依赖便携文件夹版（体积较小约 20MB）
 
