@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 $publishDir = "publish\portable"
-$singleFileExe = "ScrcpyGui-SingleFile.exe"
+$singleFileExe = "ScrcpyGui.exe"
 $iconPath = "Assets\AppIcon.ico"
 $launcherSource = "Launcher\Launcher.cs"
 $tempZip = "app_payload.zip"
@@ -108,9 +108,6 @@ if ($LASTEXITCODE -ne 0 -or -not (Test-Path $singleFileExe)) {
     exit 1
 }
 
-# 同时输出标准命名的 ScrcpyGui.exe (避开系统旧的 ScrcpyGui-SingleFile.exe 图标缓存)
-Copy-Item $singleFileExe "ScrcpyGui.exe" -Force
-
 # 6. 保存便携版 ZIP 并清理临时文件
 Write-Host "4/4 正在输出便携版 ZIP 与清理临时文件..." -ForegroundColor Cyan
 $portableZip = "scrcpy-gui-winui3-portable.zip"
@@ -120,7 +117,7 @@ if (Test-Path $tempZip) { Remove-Item $tempZip -Force }
 $sizeMb = [Math]::Round(((Get-Item $singleFileExe).Length / 1MB), 2)
 $zipSizeMb = [Math]::Round(((Get-Item $portableZip).Length / 1MB), 2)
 Write-Host "🎉 构建完成:" -ForegroundColor Green
-Write-Host "   - 单文件版: $singleFileExe / ScrcpyGui.exe ($sizeMb MB)" -ForegroundColor Green
+Write-Host "   - 单文件版: $singleFileExe ($sizeMb MB)" -ForegroundColor Green
 Write-Host "   - 便携包版: $portableZip ($zipSizeMb MB)" -ForegroundColor Green
 Write-Host "   特性: 首次极速解压至 %LOCALAPPDATA%\ScrcpyGui\app，之后次次秒开，无任何解压动画与报错！" -ForegroundColor DarkCyan
 exit 0
