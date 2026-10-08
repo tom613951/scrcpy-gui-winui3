@@ -145,7 +145,7 @@ namespace ScrcpyLauncher
                     hash = hash * 31 + head[i];
                 }
 
-                return string.Format("v5.0_{0}_{1}", len, hash);
+                return string.Format("v5.0.1_{0}_{1}", len, hash);
             }
         }
 
